@@ -134,6 +134,12 @@ animation:gr .4s steps(1) infinite}
 
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
 @keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+
+/* CA copy button */
+#caCopy{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#666;
+  font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 10px;cursor:pointer;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+#caCopy:hover{color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.08)}
 </style>
 </head>
 <body>
@@ -148,7 +154,7 @@ animation:gr .4s steps(1) infinite}
   <div class="win-text">JACKPOT</div>
 <div id="revealedWord" style="font-family:'JetBrains Mono';font-size:13px;color:#666;letter-spacing:.15em;margin:20px 0 8px">
   WORD DECRYPTED: █████
-</div>  <div style="font-family:Manrope;font-size:36px;font-weight:900;color:#fff;margin-bottom:32px">$1,000 USD1</div>
+</div>  <div style="font-family:Manrope;font-size:36px;font-weight:900;color:#fff;margin-bottom:32px">$1,000 in SOL</div>
   <div style="font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:#444;margin-bottom:40px">Backend processes Solana payout to your wallet</div>
   <button class="bp" onclick="document.getElementById('winOverlay').classList.remove('on')">CONTINUE</button>
 </div>
@@ -165,7 +171,7 @@ animation:gr .4s steps(1) infinite}
       <button class="tab" id="te" onclick="swTab('e')">Email</button>
     </div>
     <div id="pw">
-      <p style="font-size:11px;color:#555;line-height:1.75;margin-bottom:20px">Connect Phantom to place bets in USD1 and compete for the $1,000 jackpot. Your keys never leave your device.</p>
+      <p style="font-size:11px;color:#555;line-height:1.75;margin-bottom:20px">Connect Phantom to place bets in SOL and compete for the $1,000 jackpot. Your keys never leave your device.</p>
       <button class="bp" style="width:100%;justify-content:space-between;margin-bottom:10px" onclick="connectPhantom()">
         <span>Connect Phantom</span>
         <svg width="18" height="18" viewBox="0 0 128 128"><rect width="128" height="128" rx="20" fill="#AB9FF2"/><ellipse cx="83" cy="55" rx="9" ry="9" fill="white"/><ellipse cx="83" cy="55" rx="4" ry="4" fill="#AB9FF2"/><ellipse cx="45" cy="55" rx="9" ry="9" fill="white"/><ellipse cx="45" cy="55" rx="4" ry="4" fill="#AB9FF2"/></svg>
@@ -203,14 +209,14 @@ animation:gr .4s steps(1) infinite}
       <button id="bN" class="bg" onclick="bSide('NO')" style="justify-content:space-between"><span>NO</span><span id="bNp"></span></button>
     </div>
     <div style="margin-bottom:16px">
-      <label style="font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:#444;display:block;margin-bottom:7px">Amount (USD1)</label>
-      <input class="inp" id="bAm" type="number" min="1" placeholder="0.00" oninput="calcPay()"/>
+      <label style="font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:#444;display:block;margin-bottom:7px">Amount (SOL)</label>
+      <input class="inp" id="bAm" type="number" min="0.001" step="0.001" placeholder="0.00" oninput="calcPay()"/>
     </div>
     <div style="background:#070707;border:1px solid rgba(255,255,255,.05);padding:12px;margin-bottom:16px;font-size:10px">
       <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:#444">Side</span><span id="bSd">—</span></div>
       <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:#444">Price/share</span><span id="bPr">—</span></div>
       <div style="display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,.05);padding-top:8px;margin-top:4px">
-        <span style="color:#444">Est. payout</span><span id="bPy" style="font-weight:700;color:#fff">$0.00</span>
+        <span style="color:#444">Est. payout</span><span id="bPy" style="font-weight:700;color:#fff">0.00 SOL</span>
       </div>
     </div>
     <button class="bp" style="width:100%;justify-content:center" onclick="confirmBet()">CONFIRM PREDICTION</button>
@@ -231,25 +237,25 @@ animation:gr .4s steps(1) infinite}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
       <div style="background:#070707;border:1px solid rgba(255,255,255,.06);padding:14px;text-align:center">
         <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#444;margin-bottom:8px">STANDARD</div>
-        <div style="font-family:Manrope;font-size:22px;font-weight:900;margin-bottom:4px">$1</div>
+        <div style="font-family:Manrope;font-size:22px;font-weight:900;margin-bottom:4px">0.01 SOL</div>
         <div style="font-size:8px;color:#333">1 memory fragment</div>
       </div>
       <div style="background:#070707;border:1px solid rgba(255,255,255,.12);padding:14px;text-align:center">
         <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#fff;margin-bottom:8px">PREMIUM</div>
-        <div style="font-family:Manrope;font-size:22px;font-weight:900;margin-bottom:4px">$2</div>
+        <div style="font-family:Manrope;font-size:22px;font-weight:900;margin-bottom:4px">0.02 SOL</div>
         <div style="font-size:8px;color:#444">deeper memory access</div>
       </div>
     </div>
     <button class="bp" style="width:100%;justify-content:space-between" onclick="buyHint(1)">
-      <span>BUY STANDARD HINT — $1 USD1</span>
+      <span>BUY STANDARD HINT — 0.01 SOL</span>
       <span class="ms" style="font-size:16px">memory</span>
     </button>
     <div style="height:8px"></div>
     <button class="bg" style="width:100%;justify-content:space-between" onclick="buyHint(2)">
-      <span>BUY PREMIUM HINT — $2 USD1</span>
+      <span>BUY PREMIUM HINT — 0.02 SOL</span>
       <span class="ms" style="font-size:16px">psychology</span>
     </button>
-    <p style="font-size:8px;color:#222;text-align:center;margin-top:12px;line-height:1.5">Backend deducts USD1 from wallet balance. Hints are generated by AI neural cache.</p>
+    <p style="font-size:8px;color:#222;text-align:center;margin-top:12px;line-height:1.5">Backend deducts SOL from wallet balance. Hints are generated by AI neural cache.</p>
   </div>
 </div>
 
@@ -260,7 +266,7 @@ animation:gr .4s steps(1) infinite}
       <span style="font-family:Manrope;font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:900">SUBMIT GUESS</span>
       <button onclick="closeM('mGuess')" style="background:none;border:none;color:#666;cursor:pointer;font-size:18px">✕</button>
     </div>
-    <p style="font-size:11px;color:#555;line-height:1.7;margin-bottom:20px">Enter ONE word you believe is the hidden keyword. Each guess costs <strong style="color:#fff">1 USD1</strong>. Correct guess wins the <strong style="color:#fff">$1,000 jackpot</strong>.</p>
+    <p style="font-size:11px;color:#555;line-height:1.7;margin-bottom:20px">Enter ONE word you believe is the hidden keyword. Each guess costs <strong style="color:#fff">0.02 SOL</strong>. Correct guess wins the <strong style="color:#fff">$1,000 jackpot in SOL</strong>.</p>
     <div style="margin-bottom:8px">
       <label style="font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:#444;display:block;margin-bottom:7px">Your guess</label>
       <input class="inp" id="gIn" type="text" placeholder="ONE WORD..." autocomplete="off" spellcheck="false"
@@ -269,7 +275,7 @@ animation:gr .4s steps(1) infinite}
     </div>
     <div style="font-size:9px;color:#2a2a2a;margin-bottom:20px;letter-spacing:.1em">Guesses: <span id="guessCount">0</span> / Balance: <span id="gBal">—</span></div>
     <button class="bp" style="width:100%;justify-content:space-between" onclick="submitGuess()">
-      <span>SUBMIT — 1 USD1</span>
+      <span>SUBMIT — 0.02 SOL</span>
       <span class="ms" style="font-size:16px">send</span>
     </button>
   </div>
@@ -278,10 +284,20 @@ animation:gr .4s steps(1) infinite}
 <!-- ═══════════ NAV ═══════════ -->
 <nav id="nav">
   <div onclick="go('land')" style="font-family:Manrope;font-weight:900;font-size:14px;letter-spacing:.3em;text-transform:uppercase;cursor:pointer;color:#fff">BONKVERSE</div>
-  <div style="display:flex;gap:24px">
+  <div style="display:flex;align-items:center;gap:20px">
     <span class="nl on" id="nl-land" onclick="go('land')">Home</span>
     <span class="nl" id="nl-term" onclick="reqA('term')">Terminal</span>
     <span class="nl" id="nl-mkt" onclick="reqA('mkt')">Markets</span>
+    <!-- Twitter -->
+    <a href="https://x.com/bonkversedotfun" target="_blank" style="display:flex;align-items:center;color:#444;transition:color .2s;text-decoration:none" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#444'" title="Twitter / X">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.258 5.63 5.906-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <!-- CA: SOON copy button -->
+    <button id="caCopy" onclick="copyCA()" title="Copy Contract Address">
+      <span style="color:#2a2a2a;letter-spacing:.1em">CA:</span>
+      <span id="caText">SOON</span>
+      <span class="ms" style="font-size:11px;opacity:.5">content_copy</span>
+    </button>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
     <div id="nwi" style="display:none;align-items:center;gap:8px">
@@ -325,7 +341,7 @@ animation:gr .4s steps(1) infinite}
       <p style="font-size:14px;color:rgba(255,255,255,.38);max-width:420px;line-height:1.75;margin-bottom:40px;font-weight:300">
         An AI has awakened with a corrupted memory. 
         One word. One chance. 
-        Jackpot: <span style="color:#fff;font-weight:700">$1,000 USD1</span>.
+        Jackpot: <span style="color:#fff;font-weight:700">$1,000 in SOL</span>.
       </p>
       <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:40px">
         <button class="bp" onclick="reqA('term')">
@@ -406,7 +422,7 @@ animation:gr .4s steps(1) infinite}
     <div style="padding:18px">
       <div style="font-size:7px;letter-spacing:.28em;text-transform:uppercase;color:#2a2a2a;margin-bottom:6px">GUESS ATTEMPTS</div>
       <div style="font-family:Manrope;font-size:24px;font-weight:900" id="tAttempts">0</div>
-      <div style="font-size:7px;color:#1a1a1a;letter-spacing:.1em;margin-top:2px">$1 USD1 each</div>
+      <div style="font-size:7px;color:#1a1a1a;letter-spacing:.1em;margin-top:2px">0.02 SOL each</div>
     </div>
   </aside>
 
@@ -489,7 +505,7 @@ animation:gr .4s steps(1) infinite}
             <div class="jring" style="width:88px;height:88px;flex-shrink:0">
               <div style="text-align:center">
                 <div style="font-family:Manrope;font-size:16px;font-weight:900">$1K</div>
-                <div style="font-size:6px;letter-spacing:.15em;color:#333">USD1</div>
+                <div style="font-size:6px;letter-spacing:.15em;color:#333">SOL</div>
               </div>
             </div>
             <div style="font-size:10px;color:#555;line-height:1.65">
@@ -498,15 +514,15 @@ animation:gr .4s steps(1) infinite}
           </div>
           <div style="background:#070707;border:1px solid rgba(255,255,255,.05);padding:11px;margin-bottom:12px;font-family:'JetBrains Mono';font-size:9px;color:#555;line-height:1.7">
             <div style="color:#1a1a1a;font-size:7px;letter-spacing:.12em;margin-bottom:5px">CHALLENGE_01 // ACTIVE</div>
-            ONE hidden keyword. Chat with the AI to extract clues. Each guess: 1 USD1. Winner takes $1,000.
+            ONE hidden keyword. Chat with the AI to extract clues. Each guess: 0.02 SOL. Winner takes $1,000 in SOL.
           </div>
           <button class="bp" style="width:100%;justify-content:space-between;font-size:8px;letter-spacing:.2em" onclick="openGuess()">
-            <span>GUESS — 1 USD1</span>
+            <span>GUESS — 0.02 SOL</span>
             <span class="ms" style="font-size:14px">send</span>
           </button>
           <div style="height:7px"></div>
           <button class="bg" style="width:100%;justify-content:space-between;font-size:8px;letter-spacing:.2em" onclick="openM('mHint')">
-            <span>BUY HINT — $1/$2</span>
+            <span>BUY HINT — 0.01/0.02 SOL</span>
             <span class="ms" style="font-size:14px">psychology</span>
           </button>
         </div>
@@ -620,13 +636,13 @@ animation:gr .4s steps(1) infinite}
                 <button id="qN" class="bg" onclick="qSel('NO')" style="font-size:8px;padding:8px;justify-content:center">NO</button>
               </div>
               <div style="margin-bottom:16px;position:relative">
-                <label style="font-size:7px;letter-spacing:.25em;text-transform:uppercase;color:#333;display:block;margin-bottom:6px">Amount (USD1)</label>
-                <input id="qAm" class="inp" type="number" min="1" placeholder="0.00" oninput="calcQPay()"
+                <label style="font-size:7px;letter-spacing:.25em;text-transform:uppercase;color:#333;display:block;margin-bottom:6px">Amount (SOL)</label>
+                <input id="qAm" class="inp" type="number" min="0.001" step="0.001" placeholder="0.000" oninput="calcQPay()"
                   style="font-family:Manrope;font-size:20px;font-weight:800;padding-right:36px"/>
                 <button onclick="qMax()" style="position:absolute;right:0;bottom:10px;font-size:7px;letter-spacing:.15em;text-transform:uppercase;color:#333;background:none;border:none;cursor:pointer">MAX</button>
               </div>
               <div style="border-top:1px solid rgba(255,255,255,.05);padding-top:12px;display:flex;justify-content:space-between;font-size:9px;margin-bottom:12px">
-                <span style="color:#333">Est. payout</span><span id="qPay" style="font-weight:700">$0.00</span>
+                <span style="color:#333">Est. payout</span><span id="qPay" style="font-weight:700">0.000 SOL</span>
               </div>
               <button class="bp" style="width:100%;justify-content:center;font-size:8px;letter-spacing:.2em" onclick="doQBet()">CONFIRM</button>
             </div>
@@ -649,11 +665,11 @@ animation:gr .4s steps(1) infinite}
 // STATE
 // ══════════════════════════════════════════
 const S = {
-  page: 'land', wallet: null, wtype: null, balance: 50,
+  page: 'land', wallet: null, wtype: null, balance: 0,
   markets: [], filtered: [], cat: 'all',
   bet: {market:null, side:'YES', yP:.5, nP:.5},
   qb: {side:'YES'},
-  chatHistory: [],   // for API context
+  chatHistory: [],
   guesses: 0,
   hints: [],
   wrongGuesses: [],
@@ -662,7 +678,6 @@ const S = {
   feedInterval: null,
   chatBooted: false
 }
-
 
 // ══════════════════════════════════════════
 // CURSOR
@@ -685,6 +700,22 @@ function toast(msg,ms=3000){
   const t=document.getElementById('toast')
   t.textContent=msg;t.classList.add('on')
   clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),ms)
+}
+
+// ══════════════════════════════════════════
+// CA COPY
+// ══════════════════════════════════════════
+function copyCA(){
+  const caVal = document.getElementById('caText').textContent
+  if(caVal === 'SOON'){
+    toast('Contract address coming soon')
+    return
+  }
+  navigator.clipboard.writeText(caVal).then(()=>{
+    toast('✓ Contract address copied')
+  }).catch(()=>{
+    toast('CA: ' + caVal)
+  })
 }
 
 // ══════════════════════════════════════════
@@ -735,8 +766,35 @@ async function connectPhantom(){
   try{
     toast('Connecting...')
     const r=await ph.connect()
-    authOk(r.publicKey.toString(),'phantom')
+    const pubkey = r.publicKey.toString()
+    authOk(pubkey,'phantom')
+    // Fetch real SOL balance
+    fetchSolBalance(pubkey)
   }catch(e){toast('Connection rejected')}
+}
+
+async function fetchSolBalance(pubkey){
+  try{
+    const res = await fetch('https://api.mainnet-beta.solana.com', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'getBalance',
+        params: [pubkey, {commitment: 'confirmed'}]
+      })
+    })
+    const data = await res.json()
+    if(data.result && data.result.value !== undefined){
+      S.balance = data.result.value / 1e9 // lamports → SOL
+      updBal()
+    }
+  }catch(e){
+    console.warn('Could not fetch SOL balance:', e)
+    S.balance = 0
+    updBal()
+  }
 }
 
 function emailLogin(){
@@ -754,12 +812,21 @@ function emailReg(){
 }
 
 function authOk(addr,type){
-  S.wallet=addr;S.wtype=type;S.balance=50
+  S.wallet=addr;S.wtype=type
+  // Only show balance for Phantom (not email)
+  S.balance = type === 'phantom' ? 0 : null
   closeM('mAuth')
   const short=type==='phantom'?addr.slice(0,4)+'...'+addr.slice(-4):addr.split('@')[0]
   document.getElementById('nwi').style.display='flex'
   document.getElementById('nwa').textContent=short
-  document.getElementById('nbl').textContent='$'+S.balance+' USD1'
+  // Balance display: only for phantom
+  const nbl = document.getElementById('nbl')
+  if(type === 'phantom'){
+    nbl.style.display = ''
+    nbl.textContent = '◎ 0 SOL'
+  } else {
+    nbl.style.display = 'none'
+  }
   document.getElementById('nbtn').style.display='none'
   document.getElementById('dbtn').style.display='block'
   toast('✓ Connected: '+short)
@@ -774,7 +841,10 @@ function disconnect(){
 }
 
 function updBal(){
-  if(S.wallet) document.getElementById('nbl').textContent='$'+S.balance.toFixed(2)+' USD1'
+  if(S.wallet && S.wtype === 'phantom'){
+    document.getElementById('nbl').textContent = '◎ ' + (S.balance || 0).toFixed(4) + ' SOL'
+    document.getElementById('gBal').textContent = (S.balance || 0).toFixed(4) + ' SOL'
+  }
 }
 
 // ══════════════════════════════════════════
@@ -860,10 +930,8 @@ function showTyping(show){
 }
 
 // ══════════════════════════════════════════
-// SEND CHAT — ANTHROPIC API
+// SEND CHAT — BACKEND API
 // ══════════════════════════════════════════
-
-
 async function callAI(userMsg){
   try{
     const res = await fetch("https://newpiverse.onrender.com/chat", {
@@ -881,7 +949,7 @@ async function callAI(userMsg){
 
     if(data.success){
       setTimeout(() => {
-        document.getElementById("winOverlay").classList.add("on");
+        document.getElementById('winOverlay').classList.add('on');
       }, 500);
     }
 
@@ -927,9 +995,9 @@ let hintIdx={s:0, p:0}
 
 async function buyHint(level){
   if(!S.wallet){closeM('mHint');openM('mAuth');return}
-  const cost=level===1?1:2
-  if(S.balance<cost){toast('Insufficient USD1 balance ($'+S.balance.toFixed(2)+')');return}
-  S.balance-=cost
+  const cost = level===1 ? 0.01 : 0.02
+  if(S.wtype === 'phantom' && S.balance < cost){toast('Insufficient SOL balance ('+S.balance.toFixed(4)+' SOL)');return}
+  if(S.wtype === 'phantom') S.balance -= cost
   updBal()
   closeM('mHint')
   
@@ -939,18 +1007,16 @@ async function buyHint(level){
   
   S.hints.push({level, hint, cost})
   
-  // Add to hint log
   const log=document.getElementById('hintLog')
   if(log.querySelector('span')){log.innerHTML=''}
   const d=document.createElement('div')
   d.style.cssText='margin-bottom:10px;padding:8px;background:rgba(255,255,255,.02);border-left:1px solid rgba(255,255,255,.08)'
-  d.innerHTML=`<div style="font-size:7px;color:#2a2a2a;margin-bottom:4px;letter-spacing:.1em">${level===2?'PREMIUM':'STANDARD'} // -$${cost} USD1</div>
+  d.innerHTML=`<div style="font-size:7px;color:#2a2a2a;margin-bottom:4px;letter-spacing:.1em">${level===2?'PREMIUM':'STANDARD'} // -${cost} SOL</div>
   <div style="white-space:pre-wrap;line-height:1.6;color:#555">${esc(hint)}</div>`
   log.appendChild(d)
   
-  toast(`✓ Hint purchased — $${cost} USD1 deducted`)
+  toast(`✓ Hint purchased — ${cost} SOL deducted`)
   
-  // Also inject into AI chat
   if(S.page==='term'){
     const aiComment=level===2
       ? `[PREMIUM DECRYPT TOKEN RECEIVED]\n\n${hint}\n\n...that's all I can surface from that memory layer. It's... still locked.`
@@ -960,6 +1026,22 @@ async function buyHint(level){
   }
 }
 
+// ══════════════════════════════════════════
+// OPEN GUESS
+// ══════════════════════════════════════════
+function openGuess(){
+  if(!S.wallet){openM('mAuth');return}
+  document.getElementById('guessCount').textContent = S.guesses
+  if(S.wtype === 'phantom'){
+    document.getElementById('gBal').textContent = (S.balance||0).toFixed(4) + ' SOL'
+  } else {
+    document.getElementById('gBal').textContent = '—'
+  }
+  openM('mGuess')
+}
+
+// ══════════════════════════════════════════
+// SUBMIT GUESS
 // ══════════════════════════════════════════
 async function submitGuess(){
   if(!S.wallet){closeM('mGuess');openM('mAuth');return}
@@ -971,8 +1053,9 @@ async function submitGuess(){
     return;
   }
 
-  if(S.balance < 1){
-    toast('Insufficient USD1 balance');
+  const guessCost = 0.02
+  if(S.wtype === 'phantom' && S.balance < guessCost){
+    toast('Insufficient SOL balance');
     return;
   }
 
@@ -987,20 +1070,18 @@ async function submitGuess(){
 
     const data = await res.json();
 
-    // deduct balance
-    S.balance -= 1;
+    if(S.wtype === 'phantom') S.balance -= guessCost
     S.guesses++;
     updBal();
 
     document.getElementById('tAttempts').textContent = S.guesses;
     document.getElementById('lAttempts').textContent = S.guesses;
     document.getElementById('guessCount').textContent = S.guesses;
-    document.getElementById('gBal').textContent = '$' + S.balance.toFixed(2);
+    if(S.wtype === 'phantom') document.getElementById('gBal').textContent = S.balance.toFixed(4) + ' SOL'
 
     document.getElementById('gIn').value = '';
 
     if(data.success){
-      // ✅ WIN (from backend)
       closeM('mGuess');
       clearInterval(S.timerInt);
 
@@ -1020,13 +1101,12 @@ async function submitGuess(){
       toast('🏆 CORRECT! Jackpot triggered.',8000);
 
     } else {
-      // ❌ WRONG
       S.wrongGuesses.push(g);
       updateWrongLog();
 
       closeM('mGuess');
 
-      toast(`✗ "${g}" — incorrect. $1 USD1 deducted.`);
+      toast(`✗ "${g}" — incorrect. 0.02 SOL deducted.`);
 
       if(S.page==='term'){
         appendChat('ai', `No... "${g}" is not correct. Try again.`);
@@ -1037,6 +1117,12 @@ async function submitGuess(){
     console.error(e);
     toast('Error connecting to backend');
   }
+}
+
+function updateWrongLog(){
+  const log = document.getElementById('wrongLog')
+  if(!S.wrongGuesses.length){log.innerHTML='<span style="color:#1a1a1a">No attempts yet.</span>';return}
+  log.innerHTML = S.wrongGuesses.map(w=>`<div style="color:#2a2a2a;text-decoration:line-through">${esc(w)}</div>`).join('')
 }
 
 // ══════════════════════════════════════════
@@ -1166,7 +1252,7 @@ function openBet(m,side,yP,nP){
   document.getElementById('bYp').textContent='$'+yP.toFixed(2)
   document.getElementById('bNp').textContent='$'+nP.toFixed(2)
   document.getElementById('bAm').value=''
-  document.getElementById('bPy').textContent='$0.00'
+  document.getElementById('bPy').textContent='0.00 SOL'
   bSide(side)
   openM('mBet')
 }
@@ -1185,21 +1271,21 @@ function bSide(s){
 function calcPay(){
   const amt=parseFloat(document.getElementById('bAm').value)||0
   const price=S.bet.side==='YES'?S.bet.yP:S.bet.nP
-  document.getElementById('bPy').textContent='$'+(price>0?(amt/price).toFixed(2):'0.00')
+  document.getElementById('bPy').textContent=(price>0?(amt/price).toFixed(4):'0.0000')+' SOL'
 }
 
 function confirmBet(){
   if(!S.wallet){closeM('mBet');openM('mAuth');return}
   const amt=parseFloat(document.getElementById('bAm').value)
   if(!amt||amt<=0){toast('Enter an amount');return}
-  if(amt>S.balance){toast('Insufficient USD1');return}
+  if(S.wtype==='phantom'&&amt>S.balance){toast('Insufficient SOL');return}
   const m=S.bet.market, s=S.bet.side
   const price=s==='YES'?S.bet.yP:S.bet.nP
-  const shares=(amt/price).toFixed(2)
-  S.balance-=amt; updBal()
-  toast('✓ '+s+' — '+shares+' shares for $'+amt.toFixed(2)+' USD1')
+  const shares=(amt/price).toFixed(4)
+  if(S.wtype==='phantom'){S.balance-=amt;updBal()}
+  toast('✓ '+s+' — '+shares+' shares for '+amt.toFixed(4)+' SOL')
   closeM('mBet')
-  addFeed(trW(S.wallet)+' bet $'+amt.toFixed(0)+' '+s, m.question.slice(0,28)+'…','just now')
+  addFeed(trW(S.wallet)+' bet '+amt.toFixed(3)+' SOL '+s, m.question.slice(0,28)+'…','just now')
 }
 
 // ══════════════════════════════════════════
@@ -1224,15 +1310,18 @@ function qSel(s){
   calcQPay()
 }
 
-function qMax(){document.getElementById('qAm').value=S.balance;calcQPay()}
+function qMax(){
+  if(S.wtype==='phantom') document.getElementById('qAm').value=(S.balance||0).toFixed(4)
+  calcQPay()
+}
 
 function calcQPay(){
   const amt=parseFloat(document.getElementById('qAm').value)||0
   const idx=parseInt(document.getElementById('qm').value)
-  const m=S.markets[idx];if(!m){document.getElementById('qPay').textContent='$0.00';return}
+  const m=S.markets[idx];if(!m){document.getElementById('qPay').textContent='0.000 SOL';return}
   let yP=.5;try{yP=parseFloat(JSON.parse(m.outcomePrices||'[0.5]')[0])||.5}catch{}
   const price=S.qb.side==='YES'?yP:(1-yP)
-  document.getElementById('qPay').textContent='$'+(price>0?(amt/price).toFixed(2):'0.00')
+  document.getElementById('qPay').textContent=(price>0?(amt/price).toFixed(4):'0.0000')+' SOL'
 }
 
 function doQBet(){
@@ -1241,12 +1330,12 @@ function doQBet(){
   const idx=parseInt(document.getElementById('qm').value)
   if(!amt||amt<=0){toast('Enter an amount');return}
   if(isNaN(idx)){toast('Select a market');return}
-  if(amt>S.balance){toast('Insufficient USD1');return}
+  if(S.wtype==='phantom'&&amt>S.balance){toast('Insufficient SOL');return}
   const m=S.markets[idx]
-  S.balance-=amt;updBal()
-  toast('✓ '+S.qb.side+' $'+amt.toFixed(2)+' on "'+m.question.slice(0,32)+'…"')
-  addFeed(trW(S.wallet)+' bet $'+amt.toFixed(0)+' '+S.qb.side,m.question.slice(0,28)+'…','just now')
-  document.getElementById('qAm').value='';document.getElementById('qPay').textContent='$0.00'
+  if(S.wtype==='phantom'){S.balance-=amt;updBal()}
+  toast('✓ '+S.qb.side+' '+amt.toFixed(4)+' SOL on "'+m.question.slice(0,32)+'…"')
+  addFeed(trW(S.wallet)+' bet '+amt.toFixed(3)+' SOL '+S.qb.side,m.question.slice(0,28)+'…','just now')
+  document.getElementById('qAm').value='';document.getElementById('qPay').textContent='0.000 SOL'
 }
 
 // ══════════════════════════════════════════
@@ -1258,19 +1347,19 @@ const FS=['YES','NO','YES','YES','NO','YES']
 function startFeed(){
   if(S.feedInterval)return
   const seeds=[
-    {u:'USER_9921',a:1400,s:'YES',mk:'BTC_100K'},
-    {u:'NODE_ALPHA',a:450,s:'NO',mk:'ETH_5K'},
-    {u:'USER_0102',a:2100,s:'YES',mk:'SOL_500'},
-    {u:'ORACLE_33',a:300,s:'NO',mk:'FED_RATES'},
-    {u:'SIGMA_21',a:750,s:'YES',mk:'GPT5_RELEASE'},
+    {u:'USER_9921',a:'1.4',s:'YES',mk:'BTC_100K'},
+    {u:'NODE_ALPHA',a:'0.45',s:'NO',mk:'ETH_5K'},
+    {u:'USER_0102',a:'2.1',s:'YES',mk:'SOL_500'},
+    {u:'ORACLE_33',a:'0.3',s:'NO',mk:'FED_RATES'},
+    {u:'SIGMA_21',a:'0.75',s:'YES',mk:'GPT5_RELEASE'},
   ]
-  seeds.forEach(e=>addFeed(e.u+' bet $'+e.a+' '+e.s,e.mk))
+  seeds.forEach(e=>addFeed(e.u+' bet '+e.a+' SOL '+e.s,e.mk))
   S.feedInterval=setInterval(()=>{
     const u=FU[Math.floor(Math.random()*FU.length)]
-    const a=(Math.floor(Math.random()*49)+1)*10
+    const a=((Math.floor(Math.random()*49)+1)*0.01).toFixed(2)
     const s=FS[Math.floor(Math.random()*FS.length)]
     const m=S.markets[Math.floor(Math.random()*Math.max(1,S.markets.length))]
-    addFeed(u+' bet $'+a+' '+s, m?m.question.slice(0,24)+'…':'MARKET_'+Math.floor(Math.random()*99))
+    addFeed(u+' bet '+a+' SOL '+s, m?m.question.slice(0,24)+'…':'MARKET_'+Math.floor(Math.random()*99))
   },5200)
 }
 
@@ -1313,7 +1402,6 @@ function trW(w){
 // ══════════════════════════════════════════
 go('land')
 
-// Dots animation
 let di=0
 setInterval(()=>{
   const el=document.getElementById('mDots');if(!el)return
