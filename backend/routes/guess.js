@@ -2,7 +2,7 @@ import express from "express";
 
 const router = express.Router();
 
-// 🔒 SECRET
+// 🔒 SECRET (must exist)
 const SECRET = "TESLA";
 
 router.post("/", (req, res) => {
@@ -15,6 +15,7 @@ router.post("/", (req, res) => {
   if (guess.toUpperCase() === SECRET) {
     return res.json({
       success: true,
+      word: SECRET, // 🔥 important (for frontend reveal)
       message: "🎉 Correct! You broke the AI."
     });
   }
