@@ -767,11 +767,33 @@ async function connectPhantom(){
     toast('Connecting...')
     const r=await ph.connect()
     const pubkey = r.publicKey.toString()
-    const balance = await ph.getBalance(r.publicKey)
-    S.balance = balance / 1e9
     authOk(pubkey,'phantom')
-    updBal()
+    // Fetch real SOL balance
+    fetchSolBalance(pubkey)
   }catch(e){toast('Connection rejected')}
+}
+async function fetchSolBalance(pubkey){
+  try{
+    const res = await fetch('https://api.mainnet-beta.solana.com', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'getBalance',
+        params: [pubkey, {commitment: 'confirmed'}]
+      })
+    })
+    const data = await res.json()
+    if(data.result && data.result.value !== undefined){
+      S.balance = data.result.value / 1e9 // lamports → SOL
+      updBal()
+    }
+  }catch(e){
+    console.warn('Could not fetch SOL balance:', e)
+    S.balance = 0
+    updBal()
+  }
 }
 
 function emailLogin(){
