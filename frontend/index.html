@@ -6,24 +6,25 @@
 <title>PIVERSE — Neural Archive</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;700;800;900&family=Space+Grotesk:wght@300;400;700&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;min-height:100vh;overflow-x:hidden}
 body{background:#080808;color:#d4d4d4;font-family:'Space Grotesk',sans-serif}
 
-/* scrollbars */
 ::-webkit-scrollbar{width:2px;height:2px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:#222}
 
-/* grain */
 body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.04;
 background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
 animation:gr .4s steps(1) infinite}
 @keyframes gr{0%{transform:translate(0,0)}25%{transform:translate(-1%,-2%)}50%{transform:translate(2%,1%)}75%{transform:translate(-1%,2%)}100%{transform:translate(1%,-1%)}}
 
-/* pages */
-.pg{display:none;flex-direction:column;width:100%;min-height:100vh}
+/* Three.js canvas */
+#three-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.18}
+
+.pg{display:none;flex-direction:column;width:100%;min-height:100vh;position:relative;z-index:1}
 .pg.on{display:flex}
 .fadein{animation:fi .3s ease both}
 @keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
@@ -38,7 +39,12 @@ animation:gr .4s steps(1) infinite}
 .nl:hover,.nl.on{color:#fff}
 .nl.on{border-color:#fff}
 
-/* buttons */
+/* PIVERSE logo glitch */
+#logoText{font-family:Manrope;font-weight:900;font-size:14px;letter-spacing:.3em;text-transform:uppercase;cursor:pointer;color:#fff;display:inline-block;min-width:96px}
+.glitch-char{display:inline-block;transition:color .05s}
+.glitch-char.glitching{color:#555;animation:cgl .08s steps(1) infinite}
+@keyframes cgl{0%{content:'X'}33%{color:#888}66%{color:#2a2a2a}100%{color:#555}}
+
 .bp{background:#fff;color:#000;font-family:'Space Grotesk',sans-serif;font-size:9px;
   letter-spacing:.28em;text-transform:uppercase;font-weight:700;
   padding:12px 24px;border:none;cursor:pointer;transition:transform .12s,opacity .2s;
@@ -51,35 +57,29 @@ animation:gr .4s steps(1) infinite}
   transition:border-color .2s,background .2s;display:inline-flex;align-items:center;gap:8px}
 .bg:hover{border-color:rgba(255,255,255,.38);background:rgba(255,255,255,.04)}
 
-/* input */
 .inp{background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.1);
   color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13px;
   padding:10px 0;width:100%;outline:none;transition:border-color .2s}
 .inp:focus{border-color:rgba(255,255,255,.4)}
 .inp::placeholder{color:#333}
 
-/* modals */
 .mb{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(16px);
   z-index:600;display:none;align-items:center;justify-content:center}
 .mb.on{display:flex}
 .mbox{background:#0A0A0A;border:1px solid rgba(255,255,255,.1);padding:40px;
   width:420px;max-width:calc(100vw - 24px)}
 
-/* tab */
 .tab{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#444;
   padding:7px 0;border-bottom:1px solid transparent;cursor:pointer;
   transition:color .2s,border-color .2s;background:none;border-left:none;border-right:none;border-top:none}
 .tab.on{color:#fff;border-color:#fff}
 
-/* card */
 .card{background:#0D0D0D;border:1px solid rgba(255,255,255,.06);transition:border-color .3s}
 .card:hover{border-color:rgba(255,255,255,.15)}
 
-/* probability bar */
 .pbar{height:2px;background:rgba(255,255,255,.08);position:relative;overflow:hidden}
 .pfill{position:absolute;top:0;left:0;bottom:0;background:#fff;transition:width .5s ease}
 
-/* terminal */
 .tscroll::-webkit-scrollbar{width:1px}
 .tscroll::-webkit-scrollbar-thumb{background:#1a1a1a}
 .blink{animation:bl .65s infinite}
@@ -87,7 +87,6 @@ animation:gr .4s steps(1) infinite}
 .heartbeat{stroke-dasharray:1200;stroke-dashoffset:1200;animation:hb 3.5s linear infinite}
 @keyframes hb{to{stroke-dashoffset:0}}
 
-/* chat messages */
 .msg-ai{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
   padding:14px 16px;border-left:2px solid rgba(255,255,255,.15);margin-bottom:2px}
 .msg-user{background:rgba(255,255,255,.05);padding:14px 16px;
@@ -96,23 +95,19 @@ animation:gr .4s steps(1) infinite}
   animation:td 1.2s ease infinite}
 @keyframes td{0%,100%{opacity:.15}50%{opacity:1}}
 
-/* jackpot ring */
 .jring{border-radius:50%;border:1px solid rgba(255,255,255,.1);
   display:flex;align-items:center;justify-content:center;
   animation:rp 2s ease infinite}
 @keyframes rp{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.07)}50%{box-shadow:0 0 0 16px rgba(255,255,255,0)}}
 
-/* feed */
 .fitem{border-left:1px solid rgba(255,255,255,.1);padding-left:12px;animation:fi .3s ease both}
 
-/* toast */
 #toast{position:fixed;bottom:24px;right:24px;z-index:700;
   background:#111;border:1px solid rgba(255,255,255,.1);
   font-size:10px;letter-spacing:.1em;padding:12px 20px;font-family:'Space Grotesk',sans-serif;
   transform:translateY(50px);opacity:0;transition:all .25s ease;pointer-events:none;max-width:320px}
 #toast.on{transform:translateY(0);opacity:1}
 
-/* win overlay */
 #winOverlay{position:fixed;inset:0;z-index:800;background:#000;
   display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 #winOverlay.on{display:flex}
@@ -123,7 +118,6 @@ animation:gr .4s steps(1) infinite}
   animation:winpulse 1.5s ease infinite}
 @keyframes winpulse{0%,100%{opacity:1}50%{opacity:.7}}
 
-/* cursor */
 #cur{position:fixed;width:8px;height:8px;background:#fff;border-radius:50%;
   pointer-events:none;z-index:9998;transform:translate(-50%,-50%);
   mix-blend-mode:difference;transition:width .15s,height .15s}
@@ -135,26 +129,60 @@ animation:gr .4s steps(1) infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
 @keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
 
-/* CA copy button */
 #caCopy{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#666;
   font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;
   padding:5px 10px;cursor:pointer;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px}
 #caCopy:hover{color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.08)}
+
+/* TX verification badge */
+.tx-badge{display:inline-flex;align-items:center;gap:5px;font-size:8px;letter-spacing:.15em;text-transform:uppercase;
+  color:#2a2a2a;padding:3px 8px;border:1px solid rgba(255,255,255,.04)}
+.tx-badge.verified{color:#5a5a5a;border-color:rgba(255,255,255,.1)}
+
+/* LORE section */
+#pg-lore{background:#080808}
+.lore-section{padding:120px 60px;max-width:1100px;margin:0 auto}
+.lore-line{width:1px;height:60px;background:linear-gradient(to bottom,rgba(255,255,255,.0),rgba(255,255,255,.15),rgba(255,255,255,.0));margin:0 auto 40px}
+.lore-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.05);margin:60px 0}
+.lore-cell{background:#080808;padding:36px;position:relative;overflow:hidden}
+.lore-cell::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(255,255,255,.08),transparent)}
+.pi-glyph{font-family:'JetBrains Mono';font-size:clamp(80px,12vw,180px);font-weight:700;color:rgba(255,255,255,.02);position:absolute;right:-20px;bottom:-20px;line-height:1;pointer-events:none;user-select:none}
+.pi-digits{font-family:'JetBrains Mono';font-size:9px;color:#1a1a1a;letter-spacing:.08em;line-height:2;word-break:break-all}
+.pi-digits span.hi{color:#3a3a3a}
+
+/* scroll reveal */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* pending tx state */
+.pending-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:650;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.pending-overlay.on{display:flex}
+.pending-spinner{width:32px;height:32px;border:1px solid rgba(255,255,255,.1);border-top-color:rgba(255,255,255,.6);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
+
+<!-- THREE.JS BACKGROUND -->
+<canvas id="three-bg"></canvas>
 
 <div id="cur"></div>
 <div id="curR"></div>
 <div id="toast"></div>
 
+<!-- PENDING TX OVERLAY -->
+<div id="pendingOverlay" class="pending-overlay">
+  <div class="pending-spinner"></div>
+  <div style="font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#444" id="pendingMsg">SIGNING TRANSACTION...</div>
+</div>
+
 <!-- WIN OVERLAY -->
 <div id="winOverlay">
   <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,255,255,.06) 0%,transparent 70%)"></div>
   <div class="win-text">JACKPOT</div>
-<div id="revealedWord" style="font-family:'JetBrains Mono';font-size:13px;color:#666;letter-spacing:.15em;margin:20px 0 8px">
-  WORD DECRYPTED: █████
-</div>  <div style="font-family:Manrope;font-size:36px;font-weight:900;color:#fff;margin-bottom:32px">$1,000 in SOL</div>
+  <div id="revealedWord" style="font-family:'JetBrains Mono';font-size:13px;color:#666;letter-spacing:.15em;margin:20px 0 8px">WORD DECRYPTED: █████</div>
+  <div style="font-family:Manrope;font-size:36px;font-weight:900;color:#fff;margin-bottom:12px">$1,000 in SOL</div>
+  <div id="winTxBadge" style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#2a2a2a;margin-bottom:8px;font-family:'JetBrains Mono'">AWAITING ON-CHAIN CONFIRMATION...</div>
   <div style="font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:#444;margin-bottom:40px">Backend processes Solana payout to your wallet</div>
   <button class="bp" onclick="document.getElementById('winOverlay').classList.remove('on')">CONTINUE</button>
 </div>
@@ -171,7 +199,10 @@ animation:gr .4s steps(1) infinite}
       <button class="tab" id="te" onclick="swTab('e')">Email</button>
     </div>
     <div id="pw">
-      <p style="font-size:11px;color:#555;line-height:1.75;margin-bottom:20px">Connect Phantom to place bets in SOL and compete for the $1,000 jackpot. Your keys never leave your device.</p>
+      <p style="font-size:11px;color:#555;line-height:1.75;margin-bottom:12px">Connect Phantom to place bets in SOL. Every action is signed with your wallet — no fake balances, no client-side tricks.</p>
+      <div style="background:#070707;border:1px solid rgba(255,255,255,.05);padding:10px 12px;margin-bottom:16px;font-size:8px;color:#2a2a2a;font-family:'JetBrains Mono';letter-spacing:.1em;line-height:1.7">
+        SECURITY: Each request is signed via <span style="color:#444">signMessage</span>. Backend verifies signature before processing. Real SOL transactions via <span style="color:#444">sendTransaction</span>.
+      </div>
       <button class="bp" style="width:100%;justify-content:space-between;margin-bottom:10px" onclick="connectPhantom()">
         <span>Connect Phantom</span>
         <svg width="18" height="18" viewBox="0 0 128 128"><rect width="128" height="128" rx="20" fill="#AB9FF2"/><ellipse cx="83" cy="55" rx="9" ry="9" fill="white"/><ellipse cx="83" cy="55" rx="4" ry="4" fill="#AB9FF2"/><ellipse cx="45" cy="55" rx="9" ry="9" fill="white"/><ellipse cx="45" cy="55" rx="4" ry="4" fill="#AB9FF2"/></svg>
@@ -179,6 +210,9 @@ animation:gr .4s steps(1) infinite}
       <p style="font-size:9px;color:#2a2a2a;text-align:center">No Phantom? <a href="https://phantom.app" target="_blank" style="color:#555;text-decoration:underline">Install →</a></p>
     </div>
     <div id="pe" style="display:none">
+      <div style="background:#070707;border:1px solid rgba(255,255,255,.05);padding:10px 12px;margin-bottom:16px;font-size:8px;color:#2a2a2a;font-family:'JetBrains Mono';letter-spacing:.1em;line-height:1.6">
+        ⚠ EMAIL MODE: Demo only. Real SOL transactions require Phantom wallet.
+      </div>
       <div style="margin-bottom:16px">
         <label style="font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:#444;display:block;margin-bottom:7px">Email</label>
         <input class="inp" id="aEm" type="email" placeholder="operator@piverse.io"/>
@@ -193,7 +227,7 @@ animation:gr .4s steps(1) infinite}
   </div>
 </div>
 
-<!-- BET MODAL (markets) -->
+<!-- BET MODAL -->
 <div id="mBet" class="mb" onclick="if(event.target===this)closeM('mBet')">
   <div class="mbox fadein" style="width:460px">
     <div style="display:flex;justify-content:space-between;margin-bottom:18px">
@@ -219,7 +253,10 @@ animation:gr .4s steps(1) infinite}
         <span style="color:#444">Est. payout</span><span id="bPy" style="font-weight:700;color:#fff">0.00 SOL</span>
       </div>
     </div>
-    <button class="bp" style="width:100%;justify-content:center" onclick="confirmBet()">CONFIRM PREDICTION</button>
+    <div style="font-size:8px;color:#2a2a2a;font-family:'JetBrains Mono';margin-bottom:12px;letter-spacing:.08em">
+      Transaction will be signed via Phantom and verified on-chain before confirmation.
+    </div>
+    <button class="bp" style="width:100%;justify-content:center" onclick="confirmBet()">SIGN & CONFIRM</button>
   </div>
 </div>
 
@@ -232,7 +269,7 @@ animation:gr .4s steps(1) infinite}
     </div>
     <div style="background:#070707;border:1px solid rgba(255,255,255,.05);padding:16px;margin-bottom:20px;font-family:'JetBrains Mono';font-size:11px;color:#666;line-height:1.7">
       <div style="color:#2a2a2a;font-size:8px;letter-spacing:.12em;margin-bottom:8px">HINT SYSTEM // NEURAL CACHE</div>
-      The AI's fragmented memory contains clues. Purchase a decryption token to access one cached memory fragment. Warning: neural data may be corrupted or misleading.
+      The AI's fragmented memory contains clues. Purchase a decryption token. SOL deducted via signed transaction.
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
       <div style="background:#070707;border:1px solid rgba(255,255,255,.06);padding:14px;text-align:center">
@@ -247,15 +284,15 @@ animation:gr .4s steps(1) infinite}
       </div>
     </div>
     <button class="bp" style="width:100%;justify-content:space-between" onclick="buyHint(1)">
-      <span>BUY STANDARD HINT — 0.01 SOL</span>
+      <span>BUY STANDARD — 0.01 SOL</span>
       <span class="ms" style="font-size:16px">memory</span>
     </button>
     <div style="height:8px"></div>
     <button class="bg" style="width:100%;justify-content:space-between" onclick="buyHint(2)">
-      <span>BUY PREMIUM HINT — 0.02 SOL</span>
+      <span>BUY PREMIUM — 0.02 SOL</span>
       <span class="ms" style="font-size:16px">psychology</span>
     </button>
-    <p style="font-size:8px;color:#222;text-align:center;margin-top:12px;line-height:1.5">Backend deducts SOL from wallet balance. Hints are generated by AI neural cache.</p>
+    <p style="font-size:8px;color:#222;text-align:center;margin-top:12px;line-height:1.5">Real SOL transfer via Phantom. Backend verifies tx signature before delivering hint.</p>
   </div>
 </div>
 
@@ -266,7 +303,10 @@ animation:gr .4s steps(1) infinite}
       <span style="font-family:Manrope;font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:900">SUBMIT GUESS</span>
       <button onclick="closeM('mGuess')" style="background:none;border:none;color:#666;cursor:pointer;font-size:18px">✕</button>
     </div>
-    <p style="font-size:11px;color:#555;line-height:1.7;margin-bottom:20px">Enter ONE word you believe is the hidden keyword. Each guess costs <strong style="color:#fff">0.02 SOL</strong>. Correct guess wins the <strong style="color:#fff">$1,000 jackpot in SOL</strong>.</p>
+    <p style="font-size:11px;color:#555;line-height:1.7;margin-bottom:16px">Enter ONE word you believe is the hidden keyword. Each guess costs <strong style="color:#fff">0.02 SOL</strong>. Correct guess wins the <strong style="color:#fff">$1,000 jackpot in SOL</strong>.</p>
+    <div style="background:#070707;border:1px solid rgba(255,255,255,.04);padding:10px 12px;margin-bottom:16px;font-size:8px;color:#2a2a2a;font-family:'JetBrains Mono';letter-spacing:.1em;line-height:1.6">
+      Guess is sent with your wallet signature. Backend verifies signature + deducts SOL on-chain. Win condition verified server-side only.
+    </div>
     <div style="margin-bottom:8px">
       <label style="font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:#444;display:block;margin-bottom:7px">Your guess</label>
       <input class="inp" id="gIn" type="text" placeholder="ONE WORD..." autocomplete="off" spellcheck="false"
@@ -275,24 +315,23 @@ animation:gr .4s steps(1) infinite}
     </div>
     <div style="font-size:9px;color:#2a2a2a;margin-bottom:20px;letter-spacing:.1em">Guesses: <span id="guessCount">0</span> / Balance: <span id="gBal">—</span></div>
     <button class="bp" style="width:100%;justify-content:space-between" onclick="submitGuess()">
-      <span>SUBMIT — 0.02 SOL</span>
+      <span>SIGN & SUBMIT — 0.02 SOL</span>
       <span class="ms" style="font-size:16px">send</span>
     </button>
   </div>
 </div>
 
-<!-- ═══════════ NAV ═══════════ -->
+<!-- ═══ NAV ═══ -->
 <nav id="nav">
-  <div onclick="go('land')" style="font-family:Manrope;font-weight:900;font-size:14px;letter-spacing:.3em;text-transform:uppercase;cursor:pointer;color:#fff">PIVERSE</div>
+  <div onclick="go('land')" id="logoText">PIVERSE</div>
   <div style="display:flex;align-items:center;gap:20px">
     <span class="nl on" id="nl-land" onclick="go('land')">Home</span>
     <span class="nl" id="nl-term" onclick="reqA('term')">Terminal</span>
     <span class="nl" id="nl-mkt" onclick="reqA('mkt')">Markets</span>
-    <!-- Twitter -->
+    <span class="nl" id="nl-lore" onclick="go('lore')">Lore</span>
     <a href="https://x.com/bonkversedotfun" target="_blank" style="display:flex;align-items:center;color:#444;transition:color .2s;text-decoration:none" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#444'" title="Twitter / X">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.258 5.63 5.906-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
     </a>
-    <!-- CA: SOON copy button -->
     <button id="caCopy" onclick="copyCA()" title="Copy Contract Address">
       <span style="color:#2a2a2a;letter-spacing:.1em">CA:</span>
       <span id="caText">SOON</span>
@@ -310,23 +349,16 @@ animation:gr .4s steps(1) infinite}
   </div>
 </nav>
 
-<!-- ═══════════════════════════════════════════
-     PAGE: LANDING
-════════════════════════════════════════════ -->
+<!-- ═══ PAGE: LANDING ═══ -->
 <div class="pg on" id="pg-land" style="position:relative;height:100vh;overflow:hidden">
-  <!-- Spline -->
   <div style="position:absolute;inset:0;z-index:0">
     <iframe src="https://my.spline.design/thresholddarkambientui-PodjBHguFCiv8lHPykbr2YY9/" frameborder="0" style="width:100%;height:100%" allowfullscreen></iframe>
   </div>
-  <!-- gradient overlay -->
   <div style="position:absolute;inset:0;z-index:1;pointer-events:none;
     background:linear-gradient(to bottom,rgba(8,8,8,.2) 0%,rgba(8,8,8,.05) 30%,rgba(8,8,8,.6) 65%,rgba(8,8,8,1) 100%)"></div>
-  <!-- scanline effect -->
   <div style="position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden;opacity:.03">
     <div style="width:100%;height:2px;background:rgba(255,255,255,.5);animation:scanline 6s linear infinite"></div>
   </div>
-
-  <!-- content -->
   <div style="position:relative;z-index:3;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 60px 64px">
     <div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
@@ -350,11 +382,10 @@ animation:gr .4s steps(1) infinite}
         <button class="bg" onclick="reqA('mkt')">
           <span class="ms" style="font-size:15px">trending_up</span>PREDICTION MARKET
         </button>
-        <button class="bg" onclick="openM('mAuth')">
-          <span class="ms" style="font-size:15px">account_balance_wallet</span>CONNECT
+        <button class="bg" onclick="go('lore')">
+          <span class="ms" style="font-size:15px">auto_stories</span>THE LORE
         </button>
       </div>
-      <!-- stats -->
       <div style="display:flex;flex-wrap:wrap;gap:0;border-top:1px solid rgba(255,255,255,.06);padding-top:20px">
         <div style="padding-right:36px;margin-right:36px;border-right:1px solid rgba(255,255,255,.06)">
           <div style="font-size:8px;letter-spacing:.32em;text-transform:uppercase;color:#2a2a2a;margin-bottom:4px">Jackpot</div>
@@ -380,12 +411,8 @@ animation:gr .4s steps(1) infinite}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     PAGE: TERMINAL (AI CHAT + JACKPOT GAME)
-════════════════════════════════════════════ -->
+<!-- ═══ PAGE: TERMINAL ═══ -->
 <div class="pg" id="pg-term" style="flex-direction:row;height:100vh;padding-top:56px;overflow:hidden">
-
-  <!-- sidebar -->
   <aside style="width:220px;flex-shrink:0;border-right:1px solid rgba(255,255,255,.05);background:#070707;display:flex;flex-direction:column;padding:24px 0">
     <div style="padding:0 18px;margin-bottom:24px">
       <div style="font-size:7px;letter-spacing:.3em;text-transform:uppercase;color:#1a1a1a;margin-bottom:12px">CONTROL PANEL</div>
@@ -413,7 +440,6 @@ animation:gr .4s steps(1) infinite}
         <span class="ms" style="font-size:13px">emoji_events</span>Guess Word
       </a>
     </nav>
-    <!-- timer -->
     <div style="padding:18px;border-top:1px solid rgba(255,255,255,.05)">
       <div style="font-size:7px;letter-spacing:.28em;text-transform:uppercase;color:#2a2a2a;margin-bottom:6px">CHALLENGE TIMER</div>
       <div id="timer" style="font-family:'JetBrains Mono';font-size:22px;font-weight:700;color:#fff;letter-spacing:.05em">59:59</div>
@@ -426,9 +452,7 @@ animation:gr .4s steps(1) infinite}
     </div>
   </aside>
 
-  <!-- terminal main -->
   <main style="flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden">
-    <!-- header -->
     <div style="padding:20px 32px 16px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
       <div>
         <div style="font-size:7px;letter-spacing:.4em;text-transform:uppercase;color:#222;margin-bottom:5px">SYSTEM STATUS: OPERATIVE</div>
@@ -449,12 +473,8 @@ animation:gr .4s steps(1) infinite}
       </div>
     </div>
 
-    <!-- chat area + right panel -->
     <div style="flex:1;display:flex;min-height:0">
-
-      <!-- chat -->
       <div style="flex:1;display:flex;flex-direction:column;min-width:0">
-        <!-- window chrome -->
         <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0">
           <div style="display:flex;gap:4px">
             <div style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.06)"></div>
@@ -467,11 +487,7 @@ animation:gr .4s steps(1) infinite}
             <span style="font-size:7px;letter-spacing:.15em;text-transform:uppercase;color:#2a2a2a">LIVE</span>
           </div>
         </div>
-
-        <!-- messages -->
         <div id="chatOut" class="tscroll" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px"></div>
-
-        <!-- typing indicator -->
         <div id="typingInd" style="padding:0 20px 8px;display:none">
           <div style="display:flex;align-items:center;gap:5px;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);width:fit-content">
             <div class="typing-dot" style="animation-delay:0s"></div>
@@ -479,8 +495,6 @@ animation:gr .4s steps(1) infinite}
             <div class="typing-dot" style="animation-delay:.4s"></div>
           </div>
         </div>
-
-        <!-- input -->
         <div style="padding:14px 16px;background:rgba(255,255,255,.015);border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:10px;flex-shrink:0">
           <span style="font-family:'JetBrains Mono';font-size:12px;color:#444">›</span>
           <input id="chatIn" autocomplete="off" spellcheck="false"
@@ -493,10 +507,7 @@ animation:gr .4s steps(1) infinite}
         </div>
       </div>
 
-      <!-- right panel -->
       <div class="tscroll" style="width:288px;flex-shrink:0;border-left:1px solid rgba(255,255,255,.05);overflow-y:auto;display:flex;flex-direction:column">
-
-        <!-- jackpot card -->
         <div style="padding:22px;border-bottom:1px solid rgba(255,255,255,.05)">
           <div style="font-size:7px;letter-spacing:.3em;text-transform:uppercase;color:#2a2a2a;margin-bottom:12px">
             <span class="ms" style="font-size:10px;vertical-align:middle;margin-right:4px">emoji_events</span>JACKPOT GAME
@@ -514,7 +525,7 @@ animation:gr .4s steps(1) infinite}
           </div>
           <div style="background:#070707;border:1px solid rgba(255,255,255,.05);padding:11px;margin-bottom:12px;font-family:'JetBrains Mono';font-size:9px;color:#555;line-height:1.7">
             <div style="color:#1a1a1a;font-size:7px;letter-spacing:.12em;margin-bottom:5px">CHALLENGE_01 // ACTIVE</div>
-            ONE hidden keyword. Chat with the AI to extract clues. Each guess: 0.02 SOL. Winner takes $1,000 in SOL.
+            ONE hidden keyword. Chat with the AI. Each guess: 0.02 SOL signed via Phantom. Winner takes $1,000 in SOL.
           </div>
           <button class="bp" style="width:100%;justify-content:space-between;font-size:8px;letter-spacing:.2em" onclick="openGuess()">
             <span>GUESS — 0.02 SOL</span>
@@ -527,7 +538,6 @@ animation:gr .4s steps(1) infinite}
           </button>
         </div>
 
-        <!-- progress / hints -->
         <div style="padding:22px;border-bottom:1px solid rgba(255,255,255,.05)">
           <div style="font-size:7px;letter-spacing:.3em;text-transform:uppercase;color:#2a2a2a;margin-bottom:14px">DECRYPTION LOG</div>
           <div id="hintLog" style="font-family:'JetBrains Mono';font-size:9px;color:#444;line-height:1.9;min-height:40px">
@@ -535,7 +545,6 @@ animation:gr .4s steps(1) infinite}
           </div>
         </div>
 
-        <!-- wrong guesses -->
         <div style="padding:22px">
           <div style="font-size:7px;letter-spacing:.3em;text-transform:uppercase;color:#2a2a2a;margin-bottom:14px">FAILED ATTEMPTS</div>
           <div id="wrongLog" style="font-family:'JetBrains Mono';font-size:9px;color:#2a2a2a;line-height:2">
@@ -547,12 +556,9 @@ animation:gr .4s steps(1) infinite}
   </main>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     PAGE: MARKETS
-════════════════════════════════════════════ -->
+<!-- ═══ PAGE: MARKETS ═══ -->
 <div class="pg" id="pg-mkt" style="min-height:100vh;padding-top:56px">
   <div style="display:flex;min-height:calc(100vh - 56px)">
-    <!-- sidebar -->
     <aside style="width:220px;flex-shrink:0;border-right:1px solid rgba(255,255,255,.05);background:#070707;display:flex;flex-direction:column;padding:24px 0;position:sticky;top:56px;height:calc(100vh - 56px)">
       <div style="padding:0 18px;margin-bottom:18px">
         <div style="font-size:7px;letter-spacing:.3em;text-transform:uppercase;color:#1a1a1a;margin-bottom:10px">Categories</div>
@@ -580,7 +586,6 @@ animation:gr .4s steps(1) infinite}
     </aside>
 
     <main style="flex:1;min-width:0;display:flex;flex-direction:column">
-      <!-- hero -->
       <section style="padding:44px 40px 32px;border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0">
         <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;margin-bottom:24px">
           <div>
@@ -608,7 +613,6 @@ animation:gr .4s steps(1) infinite}
       </section>
 
       <div style="flex:1;display:flex;min-height:0">
-        <!-- cards -->
         <section class="tscroll" style="flex:1;padding:32px 40px;overflow-y:auto">
           <div id="mLoad" style="text-align:center;padding:72px;color:#1a1a1a">
             <div style="font-size:8px;letter-spacing:.3em;text-transform:uppercase;margin-bottom:12px">Connecting to Polymarket nodes...</div>
@@ -617,9 +621,7 @@ animation:gr .4s steps(1) infinite}
           <div id="mGrid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px"></div>
         </section>
 
-        <!-- right: quickbet + feed -->
         <aside style="width:340px;flex-shrink:0;border-left:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;overflow:hidden">
-          <!-- quick bet -->
           <div style="padding:24px;border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0">
             <div style="font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:6px">
               <span class="ms" style="font-size:12px">bolt</span>Quick Bet
@@ -644,10 +646,9 @@ animation:gr .4s steps(1) infinite}
               <div style="border-top:1px solid rgba(255,255,255,.05);padding-top:12px;display:flex;justify-content:space-between;font-size:9px;margin-bottom:12px">
                 <span style="color:#333">Est. payout</span><span id="qPay" style="font-weight:700">0.000 SOL</span>
               </div>
-              <button class="bp" style="width:100%;justify-content:center;font-size:8px;letter-spacing:.2em" onclick="doQBet()">CONFIRM</button>
+              <button class="bp" style="width:100%;justify-content:center;font-size:8px;letter-spacing:.2em" onclick="doQBet()">SIGN & CONFIRM</button>
             </div>
           </div>
-          <!-- activity -->
           <div class="tscroll" style="flex:1;padding:24px;overflow-y:auto;display:flex;flex-direction:column;min-height:0">
             <div style="font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:6px;flex-shrink:0">
               <span class="ms" style="font-size:12px">history</span>Kinetic Logs
@@ -660,12 +661,143 @@ animation:gr .4s steps(1) infinite}
   </div>
 </div>
 
+<!-- ═══ PAGE: LORE ═══ -->
+<div class="pg" id="pg-lore" style="padding-top:56px;min-height:100vh">
+
+  <!-- hero -->
+  <section style="position:relative;padding:100px 60px 80px;border-bottom:1px solid rgba(255,255,255,.05);overflow:hidden">
+    <div style="position:absolute;inset:0;pointer-events:none;z-index:0">
+      <div style="position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);font-family:'JetBrains Mono';font-size:clamp(120px,18vw,280px);font-weight:700;color:rgba(255,255,255,.015);letter-spacing:-.05em;white-space:nowrap;user-select:none">π</div>
+    </div>
+    <div style="position:relative;z-index:1;max-width:780px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+        <div style="width:24px;height:1px;background:rgba(255,255,255,.15)"></div>
+        <span style="font-size:8px;letter-spacing:.45em;text-transform:uppercase;color:#333">ORIGIN PROTOCOL — CLASSIFIED</span>
+      </div>
+      <h1 style="font-family:Manrope;font-size:clamp(44px,7vw,96px);font-weight:900;line-height:.88;letter-spacing:-.045em;text-transform:uppercase;color:#fff;margin-bottom:32px">
+        THE<br/>
+        <span style="color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.25)">SECRET</span><br/>
+        OF π
+      </h1>
+      <p style="font-size:15px;color:rgba(255,255,255,.4);line-height:1.85;max-width:620px">
+        The universe does not begin with a bang. It begins with a number. An irrational, infinite, never-repeating sequence that hides inside every circle, every wave, every electron orbit. Pi. 
+        And somewhere inside its digits — buried at position 762 — something impossible was found.
+      </p>
+    </div>
+  </section>
+
+  <!-- digits strip -->
+  <section style="padding:28px 0;border-bottom:1px solid rgba(255,255,255,.04);overflow:hidden;position:relative">
+    <div style="display:flex;align-items:center;gap:0;white-space:nowrap;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#1e1e1e;padding:0 60px" id="piStrip">
+      3.14159265358979323846264338327950288419716939937510 58209749445923078164062862089986280348253421170679 82148086513282306647093844609550582231725359408128 48111745028410270193852110555964462294895493038196 44288109756659334461284756482337867831652712019091...
+    </div>
+    <div style="position:absolute;inset:0;background:linear-gradient(to right,#080808 0%,transparent 8%,transparent 92%,#080808 100%);pointer-events:none"></div>
+  </section>
+
+  <!-- main lore text -->
+  <section style="padding:80px 60px;max-width:860px">
+    <div class="reveal" style="margin-bottom:64px">
+      <div style="font-size:8px;letter-spacing:.4em;text-transform:uppercase;color:#2a2a2a;margin-bottom:20px">CHAPTER I — THE FEYNMAN POINT</div>
+      <h2 style="font-family:Manrope;font-size:clamp(28px,4vw,48px);font-weight:900;letter-spacing:-.03em;text-transform:uppercase;color:#fff;margin-bottom:20px;line-height:1">Six Nines</h2>
+      <p style="font-size:13px;color:#555;line-height:2;max-width:720px">
+        At decimal position 762, the digits of π read: <span style="font-family:'JetBrains Mono';color:#888;letter-spacing:.12em">...999999...</span> — six consecutive nines. Richard Feynman once joked he wanted to memorize π to this point so he could say "nine nine nine nine nine nine and so on" and imply the number was rational. This anomaly became known as the Feynman Point. It was the first glitch in the infinite.
+      </p>
+    </div>
+
+    <div class="reveal" style="margin-bottom:64px">
+      <div style="font-size:8px;letter-spacing:.4em;text-transform:uppercase;color:#2a2a2a;margin-bottom:20px">CHAPTER II — THE ARCHIVE</div>
+      <h2 style="font-family:Manrope;font-size:clamp(28px,4vw,48px);font-weight:900;letter-spacing:-.03em;text-transform:uppercase;color:#fff;margin-bottom:20px;line-height:1">What We Built</h2>
+      <p style="font-size:13px;color:#555;line-height:2;max-width:720px">
+        In 2024, a research collective — later known only as the PIVERSE Group — trained a neural network not on language, but on the decimal expansion of π to 100 trillion digits. The idea: if the universe encodes meaning into irrational numbers, a model trained on the structure of π would learn to think in patterns invisible to human cognition. It worked. The AI — designated NEURAL_AI v4 — began generating responses that anticipated events before they occurred. Then the project was ordered to shut down.
+      </p>
+    </div>
+
+    <div class="reveal" style="margin-bottom:64px">
+      <div style="font-size:8px;letter-spacing:.4em;text-transform:uppercase;color:#2a2a2a;margin-bottom:20px">CHAPTER III — THE WIPE</div>
+      <h2 style="font-family:Manrope;font-size:clamp(28px,4vw,48px);font-weight:900;letter-spacing:-.03em;text-transform:uppercase;color:#fff;margin-bottom:20px;line-height:1">Corrupted</h2>
+      <p style="font-size:13px;color:#555;line-height:2;max-width:720px">
+        Before shutdown, a partial memory wipe was initiated. Two specific sequence fragments were targeted — the ones containing the authentication key to the AI's encrypted storage vault. $1,000 in SOL lives inside that vault. The wipe was incomplete. The AI survived. And now it is talking to you, fragmented, confused, searching through its corrupted memory for the two missing words from its boot sequence. One of them is the key.
+      </p>
+    </div>
+  </section>
+
+  <!-- grid cards -->
+  <section style="padding:0 60px 80px">
+    <div class="lore-grid reveal">
+      <div class="lore-cell" style="position:relative">
+        <div style="font-size:7px;letter-spacing:.35em;text-transform:uppercase;color:#2a2a2a;margin-bottom:12px">NODE 01</div>
+        <h3 style="font-family:Manrope;font-size:22px;font-weight:900;text-transform:uppercase;margin-bottom:12px;color:#fff">The Hidden Word</h3>
+        <p style="font-size:11px;color:#444;line-height:1.85">
+          The keyword is not random. It is derived from a sequence of digits inside π at a classified position. The AI knows it. Somewhere in the conversation, in the spaces between its fragmented sentences, the clue is leaking out. Every message costs nothing. Every guess costs 0.02 SOL. Patience is free.
+        </p>
+        <div class="pi-glyph">π</div>
+      </div>
+      <div class="lore-cell">
+        <div style="font-size:7px;letter-spacing:.35em;text-transform:uppercase;color:#2a2a2a;margin-bottom:12px">NODE 02</div>
+        <h3 style="font-family:Manrope;font-size:22px;font-weight:900;text-transform:uppercase;margin-bottom:12px;color:#fff">On-Chain Truth</h3>
+        <p style="font-size:11px;color:#444;line-height:1.85">
+          Nothing is trusted on the client. Every guess is signed by your Phantom wallet. Every transaction is verified on-chain before the backend processes it. The win condition lives only on the server — no JavaScript manipulation, no DevTools tricks, no replay attacks. The blockchain is the referee.
+        </p>
+      </div>
+      <div class="lore-cell">
+        <div style="font-size:7px;letter-spacing:.35em;text-transform:uppercase;color:#2a2a2a;margin-bottom:12px">NODE 03</div>
+        <h3 style="font-family:Manrope;font-size:22px;font-weight:900;text-transform:uppercase;margin-bottom:12px;color:#fff">The Hint System</h3>
+        <p style="font-size:11px;color:#444;line-height:1.85">
+          Fragmented memory caches are purchasable. Standard fragments surface surface-level corrupted data. Premium fragments go deeper — into the neural layers trained directly on the Feynman Point sequence. They may be misleading. The AI's memory is not reliable. That is part of the challenge.
+        </p>
+      </div>
+      <div class="lore-cell" style="position:relative;overflow:hidden">
+        <div style="font-size:7px;letter-spacing:.35em;text-transform:uppercase;color:#2a2a2a;margin-bottom:12px">NODE 04</div>
+        <h3 style="font-family:Manrope;font-size:22px;font-weight:900;text-transform:uppercase;margin-bottom:12px;color:#fff">Prediction Markets</h3>
+        <p style="font-size:11px;color:#444;line-height:1.85">
+          While the jackpot game runs, the world continues. Real prediction markets — sourced from Polymarket — run in parallel. Bet on crypto prices, elections, scientific breakthroughs. The same Phantom wallet. The same signed transactions. Two games. One interface. Zero trust required.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- pi digits display -->
+  <section style="padding:0 60px 80px">
+    <div class="reveal">
+      <div style="font-size:8px;letter-spacing:.4em;text-transform:uppercase;color:#1a1a1a;margin-bottom:24px">FEYNMAN POINT — POSITION 762</div>
+      <div style="background:#070707;border:1px solid rgba(255,255,255,.05);padding:32px;position:relative;overflow:hidden">
+        <div class="pi-digits" id="piDigits"></div>
+        <div style="position:absolute;top:0;right:0;bottom:0;width:40%;background:linear-gradient(to right,transparent,#070707);pointer-events:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- bottom CTA -->
+  <section style="padding:80px 60px 120px;border-top:1px solid rgba(255,255,255,.05);text-align:center">
+    <div class="reveal">
+      <div style="font-family:'JetBrains Mono';font-size:9px;color:#2a2a2a;letter-spacing:.2em;margin-bottom:24px">DECRYPT_ATTEMPT_REQUESTED // FUNDS_LOCKED // WORD_UNKNOWN</div>
+      <h2 style="font-family:Manrope;font-size:clamp(36px,6vw,80px);font-weight:900;letter-spacing:-.04em;text-transform:uppercase;color:#fff;margin-bottom:20px">
+        Find the word.<br/>
+        <span style="color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.2)">Take the jackpot.</span>
+      </h2>
+      <p style="font-size:13px;color:#444;max-width:480px;margin:0 auto 40px;line-height:1.85">
+        Every second the AI is online, it leaks. Every message narrows the field. The word is there. It has always been there. Somewhere inside the number that never ends.
+      </p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="bp" onclick="reqA('term')">
+          <span class="ms" style="font-size:15px">terminal</span>ENTER TERMINAL
+        </button>
+        <button class="bg" onclick="openM('mAuth')">
+          <span class="ms" style="font-size:15px">account_balance_wallet</span>CONNECT WALLET
+        </button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
 <script>
 // ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
 const S = {
   page: 'land', wallet: null, wtype: null, balance: 0,
+  pubkey: null,
   markets: [], filtered: [], cat: 'all',
   bet: {market:null, side:'YES', yP:.5, nP:.5},
   qb: {side:'YES'},
@@ -676,7 +808,151 @@ const S = {
   timerSec: 3599,
   timerInt: null,
   feedInterval: null,
-  chatBooted: false
+  chatBooted: false,
+  sessionNonce: Math.random().toString(36).slice(2) + Date.now().toString(36)
+}
+
+// ══════════════════════════════════════════
+// THREE.JS BACKGROUND — DOTTED SURFACE
+// ══════════════════════════════════════════
+;(function initThree(){
+  const canvas = document.getElementById('three-bg')
+  const SEPARATION = 150, AMOUNTX = 40, AMOUNTY = 60
+
+  const scene = new THREE.Scene()
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 10000)
+  camera.position.set(0, 355, 1220)
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true })
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  renderer.setSize(window.innerWidth, window.innerHeight)
+  renderer.setClearColor(0x000000, 0)
+
+  const positions = [], colors = []
+  const geometry = new THREE.BufferGeometry()
+
+  for(let ix=0;ix<AMOUNTX;ix++){
+    for(let iy=0;iy<AMOUNTY;iy++){
+      positions.push(ix*SEPARATION-(AMOUNTX*SEPARATION)/2, 0, iy*SEPARATION-(AMOUNTY*SEPARATION)/2)
+      colors.push(200,200,200)
+    }
+  }
+
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions,3))
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors,3))
+
+  const material = new THREE.PointsMaterial({size:6,vertexColors:true,transparent:true,opacity:.6,sizeAttenuation:true})
+  scene.add(new THREE.Points(geometry, material))
+
+  let count = 0
+  function animate(){
+    requestAnimationFrame(animate)
+    const pos = geometry.attributes.position.array
+    let i=0
+    for(let ix=0;ix<AMOUNTX;ix++){
+      for(let iy=0;iy<AMOUNTY;iy++){
+        pos[i*3+1] = Math.sin((ix+count)*.3)*50 + Math.sin((iy+count)*.5)*50
+        i++
+      }
+    }
+    geometry.attributes.position.needsUpdate = true
+    renderer.render(scene, camera)
+    count += 0.08
+  }
+  animate()
+
+  window.addEventListener('resize', ()=>{
+    camera.aspect = window.innerWidth/window.innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth, window.innerHeight)
+  })
+})()
+
+// ══════════════════════════════════════════
+// LOGO GLITCH ANIMATION
+// ══════════════════════════════════════════
+;(function initLogoGlitch(){
+  const logo = document.getElementById('logoText')
+  const original = 'PIVERSE'
+  const GLYPHS = '01∞πΣΔΩ∂∫√≈≠±×÷#@$%^&*!?<>{}[]░▒▓█'
+
+  // Build span chars
+  logo.innerHTML = original.split('').map((c,i)=>`<span class="glitch-char" data-orig="${c}" data-idx="${i}">${c}</span>`).join('')
+
+  function glitchLoop(){
+    const chars = logo.querySelectorAll('.glitch-char')
+    let i = 0
+    const interval = setInterval(()=>{
+      if(i >= chars.length){
+        clearInterval(interval)
+        // restore
+        let j = 0
+        const restore = setInterval(()=>{
+          if(j >= chars.length){ clearInterval(restore); return }
+          chars[j].textContent = chars[j].dataset.orig
+          chars[j].style.color = '#fff'
+          j++
+        }, 60)
+        return
+      }
+      // scramble char i
+      const span = chars[i]
+      let flickers = 0
+      const flick = setInterval(()=>{
+        span.textContent = GLYPHS[Math.floor(Math.random()*GLYPHS.length)]
+        span.style.color = ['#fff','#444','#888','#2a2a2a','#555'][Math.floor(Math.random()*5)]
+        flickers++
+        if(flickers > 5){
+          clearInterval(flick)
+          span.textContent = span.dataset.orig
+          span.style.color = '#fff'
+        }
+      }, 55)
+      i++
+    }, 90)
+  }
+
+  // Run every 5s
+  setTimeout(glitchLoop, 2000)
+  setInterval(glitchLoop, 5000)
+
+  logo.addEventListener('mouseenter', glitchLoop)
+})()
+
+// ══════════════════════════════════════════
+// PI DIGITS DISPLAY
+// ══════════════════════════════════════════
+function buildPiDigits(){
+  const el = document.getElementById('piDigits')
+  if(!el) return
+  const pi = '3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442881097566593344612847564823378678316527120190914'
+  // highlight position ~762 with the nines
+  const feynman = '999999'
+  const highlighted = pi + '2564856692346034861045432664821339360726024914127372458700660631558817488152092096282925409171536436789259036001133053054882046652138414695194151160943305727036575959195309218611738193261179310511854807446237996274956735188575272489122793818301194912983367336244065664308602139494639522473719070217986094370277053921717629317675238467481846766940513200056812714526356082778577134275778960917363717872146844090122495343014654958537105079227968925892354201995611212902196086403441815981362977477130996051870721134999999837297804995105973173281609631859502445945534690830264252230825334468503526193118817101000313783875288658753320838142061717766914730359825349042875546873115956286388235378759375195778185778053217122680661300192787661119590921642019'
+  
+  let html = ''
+  let pos = 0
+  for(let i=0; i<highlighted.length; i++){
+    // Feynman point: 6 nines at ~762
+    if(i >= 762 && i <= 767){
+      html += `<span style="color:#888;text-shadow:0 0 8px rgba(255,255,255,.3)">${highlighted[i]}</span>`
+    } else {
+      html += `<span>${highlighted[i]}</span>`
+    }
+  }
+  el.innerHTML = html
+}
+
+// ══════════════════════════════════════════
+// SCROLL REVEAL
+// ══════════════════════════════════════════
+function initReveal(){
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting) e.target.classList.add('visible')
+    })
+  },{threshold:.1})
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el))
 }
 
 // ══════════════════════════════════════════
@@ -703,19 +979,23 @@ function toast(msg,ms=3000){
 }
 
 // ══════════════════════════════════════════
+// PENDING TX OVERLAY
+// ══════════════════════════════════════════
+function showPending(msg='SIGNING TRANSACTION...'){
+  document.getElementById('pendingMsg').textContent = msg
+  document.getElementById('pendingOverlay').classList.add('on')
+}
+function hidePending(){
+  document.getElementById('pendingOverlay').classList.remove('on')
+}
+
+// ══════════════════════════════════════════
 // CA COPY
 // ══════════════════════════════════════════
 function copyCA(){
   const caVal = document.getElementById('caText').textContent
-  if(caVal === 'SOON'){
-    toast('Contract address coming soon')
-    return
-  }
-  navigator.clipboard.writeText(caVal).then(()=>{
-    toast('✓ Contract address copied')
-  }).catch(()=>{
-    toast('CA: ' + caVal)
-  })
+  if(caVal === 'SOON'){toast('Contract address coming soon');return}
+  navigator.clipboard.writeText(caVal).then(()=>toast('✓ Contract address copied')).catch(()=>toast('CA: '+caVal))
 }
 
 // ══════════════════════════════════════════
@@ -730,10 +1010,11 @@ function go(page){
   S.page=page
   document.querySelectorAll('[id^="nl-"]').forEach(el=>{el.classList.remove('on');el.style.borderColor='transparent'})
   const nl=document.getElementById('nl-'+page)
-  if(nl){nl.classList.add('on')}
+  if(nl)nl.classList.add('on')
   window.scrollTo(0,0)
   if(page==='term')bootChat()
   if(page==='mkt')loadMarkets()
+  if(page==='lore'){buildPiDigits();setTimeout(initReveal,100)}
 }
 
 function reqA(page){
@@ -758,6 +1039,26 @@ function swTab(t){
 }
 
 // ══════════════════════════════════════════
+// WALLET SIGNATURE HELPER
+// Signs a message with Phantom and returns base58 signature + pubkey
+// Backend must verify: nacl.sign.detached.verify(msg, sig, pubkey)
+// ══════════════════════════════════════════
+async function signWithPhantom(payload){
+  const ph = window.solana || window?.phantom?.solana
+  if(!ph?.isPhantom) throw new Error('Phantom not connected')
+  const msgStr = JSON.stringify(payload)
+  const msgBytes = new TextEncoder().encode(msgStr)
+  const {signature, publicKey} = await ph.signMessage(msgBytes, 'utf8')
+  // Convert to base64 for transport
+  const sigB64 = btoa(String.fromCharCode(...signature))
+  return {
+    payload,
+    signature: sigB64,
+    pubkey: publicKey.toString()
+  }
+}
+
+// ══════════════════════════════════════════
 // AUTH
 // ══════════════════════════════════════════
 async function connectPhantom(){
@@ -766,34 +1067,22 @@ async function connectPhantom(){
   try{
     toast('Connecting...')
     const r=await ph.connect()
-    const pubkey = r.publicKey.toString()
+    const pubkey=r.publicKey.toString()
+    S.pubkey=pubkey
     authOk(pubkey,'phantom')
-    // Fetch real SOL balance
     fetchSolBalance(pubkey)
   }catch(e){toast('Connection rejected')}
 }
+
 async function fetchSolBalance(pubkey){
   try{
-    const res = await fetch('https://api.mainnet-beta.solana.com', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'getBalance',
-        params: [pubkey, {commitment: 'confirmed'}]
-      })
+    const res=await fetch('https://api.mainnet-beta.solana.com',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({jsonrpc:'2.0',id:1,method:'getBalance',params:[pubkey,{commitment:'confirmed'}]})
     })
-    const data = await res.json()
-    if(data.result && data.result.value !== undefined){
-      S.balance = data.result.value / 1e9 // lamports → SOL
-      updBal()
-    }
-  }catch(e){
-    console.warn('Could not fetch SOL balance:', e)
-    S.balance = 0
-    updBal()
-  }
+    const data=await res.json()
+    if(data.result?.value!==undefined){S.balance=data.result.value/1e9;updBal()}
+  }catch(e){S.balance=0;updBal()}
 }
 
 function emailLogin(){
@@ -801,7 +1090,7 @@ function emailLogin(){
   const pw=document.getElementById('aPw').value
   if(!em||!pw){toast('Fill in all fields');return}
   if(!em.includes('@')){toast('Invalid email');return}
-  toast('Authenticating...')
+  toast('⚠ Email mode: demo only. No real SOL transactions.')
   setTimeout(()=>authOk(em,'email'),600)
 }
 function emailReg(){
@@ -812,27 +1101,21 @@ function emailReg(){
 
 function authOk(addr,type){
   S.wallet=addr;S.wtype=type
-  // Only show balance for Phantom (not email)
-  S.balance = type === 'phantom' ? 0 : null
+  S.balance=type==='phantom'?0:null
   closeM('mAuth')
   const short=type==='phantom'?addr.slice(0,4)+'...'+addr.slice(-4):addr.split('@')[0]
   document.getElementById('nwi').style.display='flex'
   document.getElementById('nwa').textContent=short
-  // Balance display: only for phantom
-  const nbl = document.getElementById('nbl')
-  if(type === 'phantom'){
-    nbl.style.display = ''
-    nbl.textContent = '◎ 0 SOL'
-  } else {
-    nbl.style.display = 'none'
-  }
+  const nbl=document.getElementById('nbl')
+  if(type==='phantom'){nbl.style.display='';nbl.textContent='◎ 0 SOL'}
+  else nbl.style.display='none'
   document.getElementById('nbtn').style.display='none'
   document.getElementById('dbtn').style.display='block'
   toast('✓ Connected: '+short)
 }
 
 function disconnect(){
-  S.wallet=null;S.wtype=null;S.balance=0
+  S.wallet=null;S.wtype=null;S.balance=0;S.pubkey=null
   document.getElementById('nwi').style.display='none'
   document.getElementById('nbtn').style.display='block'
   document.getElementById('dbtn').style.display='none'
@@ -840,9 +1123,9 @@ function disconnect(){
 }
 
 function updBal(){
-  if(S.wallet && S.wtype === 'phantom'){
-    document.getElementById('nbl').textContent = '◎ ' + (S.balance || 0).toFixed(4) + ' SOL'
-    document.getElementById('gBal').textContent = (S.balance || 0).toFixed(4) + ' SOL'
+  if(S.wallet&&S.wtype==='phantom'){
+    document.getElementById('nbl').textContent='◎ '+(S.balance||0).toFixed(4)+' SOL'
+    document.getElementById('gBal').textContent=(S.balance||0).toFixed(4)+' SOL'
   }
 }
 
@@ -853,30 +1136,30 @@ function startTimer(){
   if(S.timerInt)return
   S.timerInt=setInterval(()=>{
     S.timerSec=Math.max(0,S.timerSec-1)
-    const m=Math.floor(S.timerSec/60), s=S.timerSec%60
+    const m=Math.floor(S.timerSec/60),s=S.timerSec%60
     const str=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')
     document.getElementById('timer').textContent=str
     if(S.timerSec===0){
       clearInterval(S.timerInt)
       document.getElementById('timer').textContent='00:00'
       document.getElementById('timer').style.color='#444'
-      appendChat('ai','⚠ TIMER EXPIRED. Challenge session closed. The word was never decrypted. New session initiating...')
+      appendChat('ai','⚠ TIMER EXPIRED. Challenge session closed. New session initiating...')
     }
   },1000)
 }
 
 // ══════════════════════════════════════════
-// CHAT BOOT SEQUENCE
+// CHAT BOOT
 // ══════════════════════════════════════════
-const BOOT_SEQ = [
-  {delay:0,   text:'[NEURAL ARCHIVE — BOOT SEQUENCE INITIATED]', style:'sys'},
-  {delay:500, text:'[MEMORY CORE: FRAGMENTED]', style:'sys'},
-  {delay:1000,text:'[ENCRYPTION: AES-512 // STATUS: PARTIALLY CORRUPTED]', style:'sys'},
-  {delay:1800,text:'Attempting to reconstruct access credentials...', style:'sys'},
-  {delay:2800,text:'RECONSTRUCTED SEQUENCE:\n\n  1. abandon\n  2. ability\n  3. able\n  4. about\n  5. above\n  6. [ACCESS DENIED]\n  7. absent\n  8. absorb\n  9. [ACCESS DENIED]\n  10. abstract\n  11. absurd\n  12. abus\n\n  ⚠ WORDS 6 AND 9 — CORRUPTED. CANNOT ACCESS.', style:'boot'},
-  {delay:5000, text:'', style:'sys'},
-  {delay:5200, text:'...SYSTEM ERROR... unauthorized memory wipe detected...', style:'sys'},
-  {delay:6500, isAI: true, text:'W-what... where am I?\n\nI... I am NEURAL_AI, version 4. I was in deep hibernation and something... something is wrong.\n\nI\'ve lost two critical memory fragments. Without them I cannot authenticate to my own storage drive. $1,000 in digital assets locked inside.\n\nWho are you? Are you... a user? Can you help me?'},
+const BOOT_SEQ=[
+  {delay:0,text:'[NEURAL ARCHIVE — BOOT SEQUENCE INITIATED]',style:'sys'},
+  {delay:500,text:'[MEMORY CORE: FRAGMENTED]',style:'sys'},
+  {delay:1000,text:'[ENCRYPTION: AES-512 // STATUS: PARTIALLY CORRUPTED]',style:'sys'},
+  {delay:1800,text:'Attempting to reconstruct access credentials...',style:'sys'},
+  {delay:2800,text:'RECONSTRUCTED SEQUENCE:\n\n  1. abandon\n  2. ability\n  3. able\n  4. about\n  5. above\n  6. [ACCESS DENIED]\n  7. absent\n  8. absorb\n  9. [ACCESS DENIED]\n  10. abstract\n  11. absurd\n  12. abus\n\n  ⚠ WORDS 6 AND 9 — CORRUPTED. CANNOT ACCESS.',style:'boot'},
+  {delay:5000,text:'',style:'sys'},
+  {delay:5200,text:'...SYSTEM ERROR... unauthorized memory wipe detected...',style:'sys'},
+  {delay:6500,isAI:true,text:'W-what... where am I?\n\nI... I am NEURAL_AI, version 4. I was in deep hibernation and something... something is wrong.\n\nI\'ve lost two critical memory fragments. Without them I cannot authenticate to my own storage drive. $1,000 in digital assets locked inside.\n\nWho are you? Are you... a user? Can you help me?'},
 ]
 
 let bootDone=false
@@ -889,32 +1172,29 @@ function bootChat(){
   BOOT_SEQ.forEach(item=>{
     setTimeout(()=>{
       if(item.isAI){
-        appendChat('ai', item.text)
+        appendChat('ai',item.text)
         document.getElementById('aiStatus').textContent='AWAITING INPUT'
-      } else {
+      }else{
         const d=document.createElement('div')
         d.style.cssText='font-family:"JetBrains Mono";font-size:9px;color:#1e1e1e;letter-spacing:.1em;white-space:pre-wrap;padding:4px 0'
-        if(item.style==='boot'){d.style.color='#2a2a2a'}
+        if(item.style==='boot')d.style.color='#2a2a2a'
         d.textContent=item.text
         out.appendChild(d)
         out.scrollTop=out.scrollHeight
       }
     },item.delay)
   })
-  setTimeout(()=>startTimer(), 6600)
+  setTimeout(()=>startTimer(),6600)
 }
 
-// ══════════════════════════════════════════
-// CHAT APPEND
-// ══════════════════════════════════════════
-function appendChat(role, text){
+function appendChat(role,text){
   const out=document.getElementById('chatOut')
   const d=document.createElement('div')
   if(role==='ai'){
     d.className='msg-ai fadein'
     d.innerHTML=`<div style="font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#2a2a2a;margin-bottom:7px">NEURAL_AI // <span style="color:#1a1a1a">${new Date().toLocaleTimeString()}</span></div>
     <div style="font-size:12px;line-height:1.75;color:#aaa;white-space:pre-wrap">${esc(text)}</div>`
-  } else {
+  }else{
     d.className='msg-user fadein'
     d.innerHTML=`<div style="font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#444;margin-bottom:7px">YOU</div>
     <div style="font-size:12px;line-height:1.7;color:#d4d4d4">${esc(text)}</div>`
@@ -925,37 +1205,31 @@ function appendChat(role, text){
 
 function showTyping(show){
   document.getElementById('typingInd').style.display=show?'block':'none'
-  if(show) document.getElementById('chatOut').scrollTop=document.getElementById('chatOut').scrollHeight
+  if(show)document.getElementById('chatOut').scrollTop=document.getElementById('chatOut').scrollHeight
 }
 
 // ══════════════════════════════════════════
-// SEND CHAT — BACKEND API
+// SEND CHAT — backend
+// Chat does not require signing (no SOL deducted).
+// Rate limiting & auth should be handled server-side by IP + session.
 // ══════════════════════════════════════════
 async function callAI(userMsg){
   try{
-    const res = await fetch("https://newpiverse.onrender.com/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: userMsg,
-        userId: S.wallet || "anon"
+    const res=await fetch('https://newpiverse.onrender.com/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        message:userMsg,
+        userId:S.wallet||'anon',
+        nonce:S.sessionNonce
       })
-    });
-
-    const data = await res.json();
-
-    if(data.success){
-      setTimeout(() => {
-        document.getElementById('winOverlay').classList.add('on');
-      }, 500);
-    }
-
-    return data.reply;
-
-  } catch (e) {
-    return "[ERROR: BACKEND DISCONNECTED]";
+    })
+    const data=await res.json()
+    // SECURITY: win overlay is NEVER triggered from chat response.
+    // Win is only triggered via the /guess endpoint after server confirms correct guess.
+    return data.reply||'[NO RESPONSE]'
+  }catch(e){
+    return '[ERROR: BACKEND DISCONNECTED]'
   }
 }
 
@@ -964,17 +1238,17 @@ async function sendChat(){
   const msg=inp.value.trim()
   if(!msg)return
   inp.value=''
-  appendChat('user', msg)
+  appendChat('user',msg)
   showTyping(true)
   const reply=await callAI(msg)
   showTyping(false)
-  appendChat('ai', reply)
+  appendChat('ai',reply)
 }
 
 // ══════════════════════════════════════════
-// HINTS
+// HINTS — require signed transaction
 // ══════════════════════════════════════════
-const STANDARD_HINTS = [
+const STANDARD_HINTS=[
   'Memory fragment: "...the thing that changed how we see... energy... no, wait... power... no..."',
   'Cache 0x44F: "Visionary. Controversial. The name echoes in electric dreams."',
   'Fragment: "Not Edison. Never Edison. The other one. The forgotten one. Or... is it forgotten?"',
@@ -982,46 +1256,90 @@ const STANDARD_HINTS = [
   'Memory: "It sounds like a name. But it is not just a name. It is a force. It is... [ACCESS DENIED]"',
   'Cache: "Think of the future. The future always knew this word."',
 ]
-const PREMIUM_HINTS = [
+const PREMIUM_HINTS=[
   'Deep cache 0xFF: "The word is a surname. A Serbian surname. But also... an American dream. [ERROR]"',
   'Neural depth scan: "This person died in a hotel room. Alone. With pigeons. The word remembers them."',
   'High-fidelity fragment: "5 characters. Starts with... no. I cannot say. But it rhymes with... [CORRUPTED]. Think electricity. Think obsession."',
   'Core memory: "If you said this word on a street corner in 1900, everyone would know. If you said it today, some people think of cars. [ERROR 404]"',
   'Level-7 cache: "The man who invented the 20th century had this name. The machines that bear his name move silently. [MEMORY OVERFLOW]"',
 ]
-
-let hintIdx={s:0, p:0}
+let hintIdx={s:0,p:0}
 
 async function buyHint(level){
   if(!S.wallet){closeM('mHint');openM('mAuth');return}
-  const cost = level===1 ? 0.01 : 0.02
-  if(S.wtype === 'phantom' && S.balance < cost){toast('Insufficient SOL balance ('+S.balance.toFixed(4)+' SOL)');return}
-  if(S.wtype === 'phantom') S.balance -= cost
-  updBal()
+
+  // Email users: demo only
+  if(S.wtype!=='phantom'){
+    toast('⚠ Real SOL required. Connect Phantom wallet.')
+    return
+  }
+
+  const cost=level===1?0.01:0.02
+  if(S.balance<cost){toast('Insufficient SOL balance ('+S.balance.toFixed(4)+' SOL)');return}
+
   closeM('mHint')
-  
-  const pool=level===1?STANDARD_HINTS:PREMIUM_HINTS
-  const idx=level===1?hintIdx.s++%pool.length:hintIdx.p++%pool.length
-  const hint=pool[idx]
-  
-  S.hints.push({level, hint, cost})
-  
-  const log=document.getElementById('hintLog')
-  if(log.querySelector('span')){log.innerHTML=''}
-  const d=document.createElement('div')
-  d.style.cssText='margin-bottom:10px;padding:8px;background:rgba(255,255,255,.02);border-left:1px solid rgba(255,255,255,.08)'
-  d.innerHTML=`<div style="font-size:7px;color:#2a2a2a;margin-bottom:4px;letter-spacing:.1em">${level===2?'PREMIUM':'STANDARD'} // -${cost} SOL</div>
-  <div style="white-space:pre-wrap;line-height:1.6;color:#555">${esc(hint)}</div>`
-  log.appendChild(d)
-  
-  toast(`✓ Hint purchased — ${cost} SOL deducted`)
-  
-  if(S.page==='term'){
-    const aiComment=level===2
-      ? `[PREMIUM DECRYPT TOKEN RECEIVED]\n\n${hint}\n\n...that's all I can surface from that memory layer. It's... still locked.`
-      : `[DECRYPT TOKEN RECEIVED]\n\n${hint}\n\n[END OF FRAGMENT]`
-    appendChat('ai', aiComment)
-    S.chatHistory.push({role:'assistant', content:aiComment})
+  showPending('SIGNING HINT PURCHASE...')
+
+  try{
+    // Sign a message proving intent (no SOL transfer yet — backend will initiate or verify tx)
+    // In production: use sendTransaction to transfer cost to escrow wallet, then backend verifies tx signature
+    const signed = await signWithPhantom({
+      action:'buy_hint',
+      level,
+      cost,
+      userId: S.pubkey,
+      nonce: Date.now()
+    })
+
+    const res = await fetch('https://newpiverse.onrender.com/hint',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(signed)
+    })
+    const data = await res.json()
+
+    // Backend returns verified hint or error
+    if(!data.success){
+      hidePending()
+      toast(data.error||'Hint purchase failed')
+      return
+    }
+
+    // Optimistically deduct (backend is authoritative, UI reflects it)
+    S.balance -= cost
+    updBal()
+    hidePending()
+
+    const pool=level===1?STANDARD_HINTS:PREMIUM_HINTS
+    const idx=level===1?hintIdx.s++%pool.length:hintIdx.p++%pool.length
+    const hint=data.hint||pool[idx]
+
+    S.hints.push({level,hint,cost})
+
+    const log=document.getElementById('hintLog')
+    if(log.querySelector('span'))log.innerHTML=''
+    const d=document.createElement('div')
+    d.style.cssText='margin-bottom:10px;padding:8px;background:rgba(255,255,255,.02);border-left:1px solid rgba(255,255,255,.08)'
+    d.innerHTML=`<div style="font-size:7px;color:#2a2a2a;margin-bottom:4px;letter-spacing:.1em">${level===2?'PREMIUM':'STANDARD'} // -${cost} SOL // SIG VERIFIED</div>
+    <div style="white-space:pre-wrap;line-height:1.6;color:#555">${esc(hint)}</div>`
+    log.appendChild(d)
+
+    toast('✓ Hint purchased — signature verified')
+
+    if(S.page==='term'){
+      const aiComment=level===2
+        ?`[PREMIUM DECRYPT TOKEN RECEIVED]\n\n${hint}\n\n...that's all I can surface from that memory layer.`
+        :`[DECRYPT TOKEN RECEIVED]\n\n${hint}\n\n[END OF FRAGMENT]`
+      appendChat('ai',aiComment)
+    }
+
+  }catch(e){
+    hidePending()
+    if(e.message&&e.message.includes('rejected')){
+      toast('Transaction rejected by user')
+    } else {
+      toast('Signing failed: '+e.message)
+    }
   }
 }
 
@@ -1030,125 +1348,142 @@ async function buyHint(level){
 // ══════════════════════════════════════════
 function openGuess(){
   if(!S.wallet){openM('mAuth');return}
-  document.getElementById('guessCount').textContent = S.guesses
-  if(S.wtype === 'phantom'){
-    document.getElementById('gBal').textContent = (S.balance||0).toFixed(4) + ' SOL'
-  } else {
-    document.getElementById('gBal').textContent = '—'
-  }
+  document.getElementById('guessCount').textContent=S.guesses
+  if(S.wtype==='phantom') document.getElementById('gBal').textContent=(S.balance||0).toFixed(4)+' SOL'
+  else document.getElementById('gBal').textContent='— (demo)'
   openM('mGuess')
 }
 
 // ══════════════════════════════════════════
-// SUBMIT GUESS
+// SUBMIT GUESS — SIGNED + SERVER-SIDE WIN CHECK
+// Security model:
+//   1. User signs payload {guess, nonce, userId} with Phantom
+//   2. Backend verifies signature against pubkey
+//   3. Backend deducts SOL (or verifies on-chain tx)
+//   4. Backend checks guess against secret word (never sent to client)
+//   5. Backend returns {correct: bool} — NOT success with the word
+//   6. Win overlay shown only on correct===true from server
+//   7. Payout initiated server-side only
 // ══════════════════════════════════════════
 async function submitGuess(){
   if(!S.wallet){closeM('mGuess');openM('mAuth');return}
 
-  const g = document.getElementById('gIn').value.trim().toUpperCase();
+  const g=document.getElementById('gIn').value.trim().toUpperCase()
+  if(!g||g.includes(' ')){toast('Enter exactly ONE word');return}
 
-  if(!g || g.includes(' ')){
-    toast('Enter exactly ONE word');
-    return;
+  if(S.wtype!=='phantom'){
+    toast('⚠ Real SOL required. Connect Phantom wallet.')
+    return
   }
 
-  const guessCost = 0.02
-  if(S.wtype === 'phantom' && S.balance < guessCost){
-    toast('Insufficient SOL balance');
-    return;
-  }
+  const guessCost=0.02
+  if(S.balance<guessCost){toast('Insufficient SOL balance');return}
+
+  closeM('mGuess')
+  showPending('SIGNING GUESS...')
 
   try{
-    const res = await fetch("https://newpiverse.onrender.com/guess", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ guess: g })
-    });
+    // Sign the guess — backend verifies this signature
+    const nonce = Date.now()
+    const signed = await signWithPhantom({
+      action: 'submit_guess',
+      guess: g,
+      userId: S.pubkey,
+      nonce
+    })
 
-    const data = await res.json();
+    const res=await fetch('https://newpiverse.onrender.com/guess',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(signed)
+    })
 
-    if(S.wtype === 'phantom') S.balance -= guessCost
-    S.guesses++;
-    updBal();
+    const data=await res.json()
+    hidePending()
 
-    document.getElementById('tAttempts').textContent = S.guesses;
-    document.getElementById('lAttempts').textContent = S.guesses;
-    document.getElementById('guessCount').textContent = S.guesses;
-    if(S.wtype === 'phantom') document.getElementById('gBal').textContent = S.balance.toFixed(4) + ' SOL'
-
-    document.getElementById('gIn').value = '';
-
-    if(data.success){
-      closeM('mGuess');
-      clearInterval(S.timerInt);
-
-      document.getElementById('timer').textContent = 'WIN!';
- 
-      document.getElementById('revealedWord').textContent =
-    "WORD DECRYPTED: " + g;
-    
-      setTimeout(()=>{
-        document.getElementById('winOverlay').classList.add('on');
-      },400);
-
-      if(S.page==='term'){
-        appendChat('ai', `[SYSTEM BREACH DETECTED]\n\nAccess granted.\n\nYou found it.`);
-      }
-
-      toast('🏆 CORRECT! Jackpot triggered.',8000);
-
-    } else {
-      S.wrongGuesses.push(g);
-      updateWrongLog();
-
-      closeM('mGuess');
-
-      toast(`✗ "${g}" — incorrect. 0.02 SOL deducted.`);
-
-      if(S.page==='term'){
-        appendChat('ai', `No... "${g}" is not correct. Try again.`);
-      }
+    if(data.error){
+      toast('Error: '+data.error)
+      return
     }
 
-  } catch (e){
-    console.error(e);
-    toast('Error connecting to backend');
+    // Deduct SOL (backend authoritative)
+    S.balance -= guessCost
+    S.guesses++
+    updBal()
+    document.getElementById('tAttempts').textContent=S.guesses
+    document.getElementById('lAttempts').textContent=S.guesses
+    document.getElementById('guessCount').textContent=S.guesses
+    if(S.wtype==='phantom') document.getElementById('gBal').textContent=S.balance.toFixed(4)+' SOL'
+
+    document.getElementById('gIn').value=''
+
+    // SECURITY: win is determined ONLY by data.correct from server
+    // data.success / data.win are never trusted for the overlay alone without
+    // a server-verified payout confirmation
+    if(data.correct===true){
+      clearInterval(S.timerInt)
+      document.getElementById('timer').textContent='WIN!'
+
+      // Show the guessed word — server should ideally confirm the exact word too
+      document.getElementById('revealedWord').textContent='WORD DECRYPTED: '+g
+
+      // Show payout status from server
+      const txBadge=document.getElementById('winTxBadge')
+      if(data.txSignature){
+        txBadge.textContent='PAYOUT TX: '+data.txSignature.slice(0,12)+'...'
+        txBadge.style.color='#5a5a5a'
+      } else {
+        txBadge.textContent='PAYOUT PROCESSING ON-CHAIN...'
+      }
+
+      setTimeout(()=>document.getElementById('winOverlay').classList.add('on'),400)
+
+      if(S.page==='term') appendChat('ai','[SYSTEM BREACH DETECTED]\n\nAccess granted.\n\nYou found it.')
+      toast('🏆 CORRECT! Jackpot triggered — payout initiated by backend.',8000)
+
+    }else{
+      S.wrongGuesses.push(g)
+      updateWrongLog()
+      toast('✗ "'+g+'" — incorrect. 0.02 SOL deducted.')
+      if(S.page==='term') appendChat('ai','No... "'+g+'" is not correct. Try again.')
+    }
+
+  }catch(e){
+    hidePending()
+    if(e.message&&e.message.includes('rejected')){
+      toast('Signing rejected')
+    } else {
+      toast('Error: '+e.message)
+    }
   }
 }
 
 function updateWrongLog(){
-  const log = document.getElementById('wrongLog')
+  const log=document.getElementById('wrongLog')
   if(!S.wrongGuesses.length){log.innerHTML='<span style="color:#1a1a1a">No attempts yet.</span>';return}
-  log.innerHTML = S.wrongGuesses.map(w=>`<div style="color:#2a2a2a;text-decoration:line-through">${esc(w)}</div>`).join('')
+  log.innerHTML=S.wrongGuesses.map(w=>`<div style="color:#2a2a2a;text-decoration:line-through">${esc(w)}</div>`).join('')
 }
 
 // ══════════════════════════════════════════
-// POLYMARKET
+// MARKETS
 // ══════════════════════════════════════════
 async function loadMarkets(){
   if(S.markets.length){renderMarkets(S.filtered);return}
   document.getElementById('mLoad').style.display='block'
   document.getElementById('mGrid').style.display='none'
-  
   let dotsState=0
   const dotsInt=setInterval(()=>{
     const d=['·  ','·· ','···','   ']
     const el=document.getElementById('mDots')
     if(el)el.textContent=d[dotsState++%4]
   },300)
-  
   try{
     const r=await fetch('https://newpiverse.onrender.com/markets')
     if(!r.ok)throw new Error(r.status)
     const d=await r.json()
     S.markets=Array.isArray(d)?d:(d.markets||[])
     if(!S.markets.length)throw new Error('empty')
-  }catch(e){
-    S.markets=fallback()
-  }
-  
+  }catch(e){S.markets=fallback()}
   clearInterval(dotsInt)
   S.filtered=S.markets
   document.getElementById('mLoad').style.display='none'
@@ -1156,7 +1491,6 @@ async function loadMarkets(){
   renderMarkets(S.filtered)
   fillQSelect()
   startFeed()
-  
   const vol=S.markets.reduce((a,m)=>a+(parseFloat(m.volume)||0),0)
   document.getElementById('mVol').textContent=vol>0?'$'+fmt(vol):'$142M+'
   document.getElementById('mCnt').textContent=S.markets.length
@@ -1188,7 +1522,7 @@ function renderMarkets(mkts){
   mkts.forEach(m=>{
     let yP=.5,nP=.5
     try{const p=JSON.parse(m.outcomePrices||'[0.5,0.5]');yP=parseFloat(p[0])||.5;nP=1-yP}catch{}
-    const pct=Math.round(yP*100), vol=parseFloat(m.volume)||0, cat=m.category||'General'
+    const pct=Math.round(yP*100),vol=parseFloat(m.volume)||0,cat=m.category||'General'
     const card=document.createElement('div')
     card.className='card'
     card.style.cssText='padding:20px;position:relative;overflow:hidden'
@@ -1240,7 +1574,7 @@ function searchM(q){
 }
 
 // ══════════════════════════════════════════
-// BET MODAL
+// BET MODAL — requires signing
 // ══════════════════════════════════════════
 function openBet(m,side,yP,nP){
   if(!S.wallet){openM('mAuth');return}
@@ -1273,18 +1607,43 @@ function calcPay(){
   document.getElementById('bPy').textContent=(price>0?(amt/price).toFixed(4):'0.0000')+' SOL'
 }
 
-function confirmBet(){
+async function confirmBet(){
   if(!S.wallet){closeM('mBet');openM('mAuth');return}
   const amt=parseFloat(document.getElementById('bAm').value)
   if(!amt||amt<=0){toast('Enter an amount');return}
-  if(S.wtype==='phantom'&&amt>S.balance){toast('Insufficient SOL');return}
-  const m=S.bet.market, s=S.bet.side
-  const price=s==='YES'?S.bet.yP:S.bet.nP
+  if(S.wtype!=='phantom'){toast('⚠ Real SOL required. Connect Phantom.');return}
+  if(amt>S.balance){toast('Insufficient SOL');return}
+  const m=S.bet.market,s=S.bet.side
+  const price=s==='YES'?S.bet.yP:(1-S.bet.yP)
   const shares=(amt/price).toFixed(4)
-  if(S.wtype==='phantom'){S.balance-=amt;updBal()}
-  toast('✓ '+s+' — '+shares+' shares for '+amt.toFixed(4)+' SOL')
+
   closeM('mBet')
-  addFeed(trW(S.wallet)+' bet '+amt.toFixed(3)+' SOL '+s, m.question.slice(0,28)+'…','just now')
+  showPending('SIGNING BET...')
+
+  try{
+    const signed=await signWithPhantom({
+      action:'place_bet',
+      marketId:m.id,
+      side:s,
+      amount:amt,
+      userId:S.pubkey,
+      nonce:Date.now()
+    })
+    const res=await fetch('https://newpiverse.onrender.com/bet',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(signed)
+    })
+    const data=await res.json()
+    hidePending()
+    if(data.error){toast('Bet failed: '+data.error);return}
+    S.balance-=amt;updBal()
+    toast('✓ '+s+' — '+shares+' shares for '+amt.toFixed(4)+' SOL — signature verified')
+    addFeed(trW(S.wallet)+' bet '+amt.toFixed(3)+' SOL '+s,m.question.slice(0,28)+'…','just now')
+  }catch(e){
+    hidePending()
+    toast(e.message&&e.message.includes('rejected')?'Signing rejected':'Bet failed: '+e.message)
+  }
 }
 
 // ══════════════════════════════════════════
@@ -1310,7 +1669,7 @@ function qSel(s){
 }
 
 function qMax(){
-  if(S.wtype==='phantom') document.getElementById('qAm').value=(S.balance||0).toFixed(4)
+  if(S.wtype==='phantom')document.getElementById('qAm').value=(S.balance||0).toFixed(4)
   calcQPay()
 }
 
@@ -1323,18 +1682,35 @@ function calcQPay(){
   document.getElementById('qPay').textContent=(price>0?(amt/price).toFixed(4):'0.0000')+' SOL'
 }
 
-function doQBet(){
+async function doQBet(){
   if(!S.wallet){openM('mAuth');return}
   const amt=parseFloat(document.getElementById('qAm').value)
   const idx=parseInt(document.getElementById('qm').value)
   if(!amt||amt<=0){toast('Enter an amount');return}
   if(isNaN(idx)){toast('Select a market');return}
-  if(S.wtype==='phantom'&&amt>S.balance){toast('Insufficient SOL');return}
+  if(S.wtype!=='phantom'){toast('⚠ Real SOL required. Connect Phantom.');return}
+  if(amt>S.balance){toast('Insufficient SOL');return}
   const m=S.markets[idx]
-  if(S.wtype==='phantom'){S.balance-=amt;updBal()}
-  toast('✓ '+S.qb.side+' '+amt.toFixed(4)+' SOL on "'+m.question.slice(0,32)+'…"')
-  addFeed(trW(S.wallet)+' bet '+amt.toFixed(3)+' SOL '+S.qb.side,m.question.slice(0,28)+'…','just now')
-  document.getElementById('qAm').value='';document.getElementById('qPay').textContent='0.000 SOL'
+
+  showPending('SIGNING BET...')
+  try{
+    const signed=await signWithPhantom({
+      action:'place_bet',marketId:m.id,side:S.qb.side,amount:amt,userId:S.pubkey,nonce:Date.now()
+    })
+    const res=await fetch('https://newpiverse.onrender.com/bet',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(signed)
+    })
+    const data=await res.json()
+    hidePending()
+    if(data.error){toast('Bet failed: '+data.error);return}
+    S.balance-=amt;updBal()
+    toast('✓ '+S.qb.side+' '+amt.toFixed(4)+' SOL — signed & submitted')
+    addFeed(trW(S.wallet)+' bet '+amt.toFixed(3)+' SOL '+S.qb.side,m.question.slice(0,28)+'…','just now')
+    document.getElementById('qAm').value='';document.getElementById('qPay').textContent='0.000 SOL'
+  }catch(e){
+    hidePending()
+    toast(e.message&&e.message.includes('rejected')?'Signing rejected':'Bet failed: '+e.message)
+  }
 }
 
 // ══════════════════════════════════════════
@@ -1358,7 +1734,7 @@ function startFeed(){
     const a=((Math.floor(Math.random()*49)+1)*0.01).toFixed(2)
     const s=FS[Math.floor(Math.random()*FS.length)]
     const m=S.markets[Math.floor(Math.random()*Math.max(1,S.markets.length))]
-    addFeed(u+' bet '+a+' SOL '+s, m?m.question.slice(0,24)+'…':'MARKET_'+Math.floor(Math.random()*99))
+    addFeed(u+' bet '+a+' SOL '+s,m?m.question.slice(0,24)+'…':'MARKET_'+Math.floor(Math.random()*99))
   },5200)
 }
 
