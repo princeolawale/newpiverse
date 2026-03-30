@@ -1776,7 +1776,11 @@ function trW(w){
 // INIT
 // ══════════════════════════════════════════
 go('land')
-
+setInterval(()=>{
+  const inc = Math.floor(Math.random() * 3) + 1
+  const el = document.getElementById('lAttempts')
+  if(el) el.textContent = parseInt(el.textContent || '0') + inc
+}, 25000)
 let di=0
 setInterval(()=>{
   const el=document.getElementById('mDots');if(!el)return
