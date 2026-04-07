@@ -993,11 +993,17 @@ function hidePending(){
 // CA COPY
 // ══════════════════════════════════════════
 function copyCA(){
-  const caVal = document.getElementById('caText').textContent
-  if(caVal === 'SOON'){toast('Contract address coming soon');return}
-  navigator.clipboard.writeText(caVal).then(()=>toast('✓ Contract address copied')).catch(()=>toast('CA: '+caVal))
+  const ca = '42MdhyU4oo6XS3PhKSYPR1uuKvL9Mi99P8ZP46KYpump'
+  navigator.clipboard.writeText(ca).then(()=>toast('✓ Contract address copied')).catch(()=>{
+    const el = document.createElement('textarea')
+    el.value = ca
+    document.body.appendChild(el)
+    el.select()
+    document.execCommand('copy')
+    document.body.removeChild(el)
+    toast('✓ Contract address copied')
+  })
 }
-
 // ══════════════════════════════════════════
 // ROUTER
 // ══════════════════════════════════════════
